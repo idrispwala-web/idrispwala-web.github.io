@@ -386,11 +386,16 @@ html:has(dialog[open]){overflow:hidden}
   .feat .thumb::after{display:none}
   .peek{display:none}
 }
+@media (max-width:340px){.bar .wrap{gap:8px}.bar .btn{padding:12px 9px}}
 @media (max-width:620px){
   body{font-size:16px}
   .name{font-size:11.4vw;white-space:nowrap}
   .hero-art canvas{-webkit-mask-image:linear-gradient(180deg,#000 20%,transparent 62%);mask-image:linear-gradient(180deg,#000 20%,transparent 62%)}
-  .bar .btn{padding:12px 14px}
+  .bar .btn{padding:12px 12px}
+  .bar-end{gap:6px}
+  .bar .btn,.dlg-close{font-size:12px}
+  .fl-num{font-size:12px}
+  .foot-base a{display:inline-block;padding:12px 0;margin:-12px 0}
   .meta{grid-template-columns:minmax(0,1fr)}
   .row{grid-template-columns:minmax(0,1fr) 1.5rem;gap:6px 12px;padding:20px 4px}
   .row .pill{grid-column:1;grid-row:1}
@@ -1168,16 +1173,34 @@ addEventListener('scroll',ask,{passive:true});addEventListener('resize',ask);fra
   if(!calm)addEventListener('pointermove',e=>{px=e.clientX;py=e.clientY;if(scrollY<innerHeight)dirty=true;},{passive:true});
   build();go();
 })();
+// Ripples: pixel squares that spread where a mouse or finger passes over empty page.
+const rip=document.createElement('canvas'),rc=rip.getContext('2d');let rings=[],drawn=false,lr={x:-999,y:-999,t:0},rgo=false;
+function ripples(t){
+  rc.clearRect(0,0,innerWidth,innerHeight);rings=rings.filter(r=>t-r.t<900);drawn=rings.length>0;
+  rings.forEach(r=>{const k=Math.max(0,(t-r.t)/900),s=2*Math.round((6+(1-(1-k)**3)*50)/2);rc.globalAlpha=.3*(1-k);rc.strokeStyle=rc.fillStyle=r.c;rc.lineWidth=2;
+    rc.strokeRect(r.x-s/2,r.y-s/2,s,s);if(k<.35)rc.fillRect(r.x-2,r.y-2,4,4);});
+  if(rings.length||drawn)requestAnimationFrame(ripples);else rgo=false;
+}
+function drop(x,y){
+  const t=performance.now();
+  if(Math.hypot(x-lr.x,y-lr.y)>44&&t-lr.t>70){lr={x,y,t};if(rings.length<14)rings.push({x:Math.round(x),y:Math.round(y),t,c:getComputedStyle(root).getPropertyValue('--fg')});}
+  if(rings.length&&!rgo){rgo=true;requestAnimationFrame(ripples);}
+}
+if(!calm){
+  rip.className='ripples';rip.setAttribute('aria-hidden','true');document.body.append(rip);
+  const sizeRip=()=>{const d=Math.min(2,devicePixelRatio||1);rip.width=innerWidth*d;rip.height=innerHeight*d;rc.setTransform(d,0,0,d,0,0);};
+  sizeRip();addEventListener('resize',sizeRip);
+  const touch=e=>{const p=e.touches[0];if(!p)return;const el=document.elementFromPoint(p.clientX,p.clientY);if(el&&!el.closest('dialog,form'))drop(p.clientX,p.clientY);};
+  addEventListener('touchstart',touch,{passive:true});addEventListener('touchmove',touch,{passive:true});
+}
 if(!calm&&matchMedia('(pointer:fine)').matches){
   addEventListener('pointermove',e=>{mx=e.clientX/innerWidth-.5;my=e.clientY/innerHeight-.5;if(scrollY<innerHeight)ask();},{passive:true});
   // Cursor: a pixel square that follows with a short lag and takes the shape of what it is over.
-  const cur=document.createElement('div'),rip=document.createElement('canvas'),rc=rip.getContext('2d');
-  cur.className='cur';rip.className='ripples';cur.setAttribute('aria-hidden','true');rip.setAttribute('aria-hidden','true');
-  document.body.append(rip,cur);root.classList.add('has-cur');
+  const cur=document.createElement('div');
+  cur.className='cur';cur.setAttribute('aria-hidden','true');
+  document.body.append(cur);root.classList.add('has-cur');
   const HIT='a,button,summary,select,[role=button],.chip',TXT='p,h1,h2,h3,h4,h5,li,dd,dt,blockquote,figcaption,label,.mono';
-  let cx=-99,cy=-99,box={x:-99,y:-99,w:8,h:8},want={...box},look=false,going=false,rings=[],drawn=false,lr={x:-999,y:-999,t:0};
-  const sizeRip=()=>{const d=Math.min(2,devicePixelRatio||1);rip.width=innerWidth*d;rip.height=innerHeight*d;rc.setTransform(d,0,0,d,0,0);};
-  sizeRip();addEventListener('resize',sizeRip);
+  let cx=-99,cy=-99,box={x:-99,y:-99,w:8,h:8},want={...box},look=false,going=false;
   function aim(el){
     let m='',lab='',cc='',w=8,h=8,x=cx-4,y=cy-4;
     const tile=el.closest('.tile'),card=el.closest('.proj');
@@ -1191,26 +1214,16 @@ if(!calm&&matchMedia('(pointer:fine)').matches){
       m='caret';h=Math.round((parseFloat(getComputedStyle(el).fontSize)||16)*1.15);w=2;x=cx-1;y=cy-h/2;
     }
     else if(el.closest(HIT)){w=h=4;x=cx-2;y=cy-2;}
-    else if(!el.closest('dialog,.hero,img,svg,canvas,form')){
-      const t=performance.now();
-      if(Math.hypot(cx-lr.x,cy-lr.y)>44&&t-lr.t>70){lr={x:cx,y:cy,t};if(rings.length<14)rings.push({x:Math.round(cx),y:Math.round(cy),t,c:getComputedStyle(root).getPropertyValue('--fg')});}
-    }
+    else if(!el.closest('dialog,.hero,img,svg,canvas,form'))drop(cx,cy);
     cur.className='cur'+(m?' '+m:'');cur.textContent=lab;if(cc)cur.style.setProperty('--cc',cc);
     want={x,y,w,h};
     const host=el.closest('dialog')||document.body;if(cur.parentNode!==host)host.appendChild(cur);
   }
-  function ripples(t){
-    if(!rings.length&&!drawn)return;
-    rc.clearRect(0,0,innerWidth,innerHeight);rings=rings.filter(r=>t-r.t<900);drawn=rings.length>0;
-    rings.forEach(r=>{const k=Math.max(0,(t-r.t)/900),s=2*Math.round((6+(1-(1-k)**3)*50)/2);rc.globalAlpha=.3*(1-k);rc.strokeStyle=rc.fillStyle=r.c;rc.lineWidth=2;
-      rc.strokeRect(r.x-s/2,r.y-s/2,s,s);if(k<.35)rc.fillRect(r.x-2,r.y-2,4,4);});
-  }
-  function move(t){
+  function move(){
     if(look){look=false;const el=document.elementFromPoint(cx,cy);if(el)aim(el);}
     for(const k of ['x','y','w','h'])box[k]+=(want[k]-box[k])*.3;
     cur.style.transform=`translate3d(${box.x}px,${box.y}px,0)`;cur.style.width=box.w+'px';cur.style.height=box.h+'px';
-    ripples(t);
-    if(look||rings.length||drawn||['x','y','w','h'].some(k=>Math.abs(want[k]-box[k])>.3))requestAnimationFrame(move);else going=false;
+    if(look||['x','y','w','h'].some(k=>Math.abs(want[k]-box[k])>.3))requestAnimationFrame(move);else going=false;
   }
   const wake=()=>{look=true;if(!going){going=true;requestAnimationFrame(move);}};
   addEventListener('pointermove',e=>{if(e.pointerType!=='mouse')return;if(cx<0)box={x:e.clientX-4,y:e.clientY-4,w:8,h:8};cx=e.clientX;cy=e.clientY;cur.style.opacity=1;wake();},{passive:true});
