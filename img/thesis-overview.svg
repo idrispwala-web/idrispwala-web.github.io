@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 760" font-family="'IBM Plex Mono',Consolas,'Courier New',monospace">
+  <defs>
+    <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.3" fill="#262626"/></pattern>
+    <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#8a8a85"/></marker>
+    <marker id="ahg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#3ddc97"/></marker>
+    <linearGradient id="fc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc247" stop-opacity=".55"/><stop offset="1" stop-color="#ffc247" stop-opacity="0"/></linearGradient>
+  </defs>
+  <rect width="1400" height="760" rx="18" fill="#0d0d0d"/>
+  <rect width="1400" height="760" rx="18" fill="url(#dots)"/>
+
+  <!-- stage headers -->
+  <g font-size="26" font-weight="700" letter-spacing="2">
+    <text x="40" y="78" fill="#4ea1ff">01 DATA</text>
+    <text x="380" y="78" fill="#3ddc97">02 TEMPORAL GRAPH</text>
+    <text x="830" y="78" fill="#ff3358">03 TGN MODEL</text>
+    <text x="1140" y="78" fill="#ffc247">04 FORECAST</text>
+  </g>
+  <g font-size="19" fill="#8a8a85">
+    <text x="40" y="108">dirty shipment legs</text>
+    <text x="380" y="108">entities that remember over time</text>
+    <text x="830" y="108">memory + multi-task heads</text>
+    <text x="1140" y="108">transit time in days</text>
+  </g>
+
+  <!-- 01 data: funnel -->
+  <g>
+    <rect x="40" y="150" width="280" height="560" rx="12" fill="#151515" stroke="#2a2a2a"/>
+    <text x="64" y="200" font-size="44" font-weight="700" fill="#f4f4f0">8.2M</text>
+    <text x="64" y="228" font-size="18" fill="#8a8a85">raw legs · 6 tables</text>
+    <rect x="64" y="246" width="232" height="26" rx="4" fill="#4ea1ff"/>
+    <g font-size="17" fill="#ff6b84">
+      <rect x="64" y="300" width="113" height="18" rx="3" fill="#ff3358" opacity=".35"/><text x="64" y="342">− 4.0M unknown legs</text>
+      <rect x="64" y="360" width="17" height="18" rx="3" fill="#ff3358" opacity=".35"/><text x="64" y="402">− 600K fake timestamps</text>
+    </g>
+    <text x="64" y="448" font-size="18" fill="#8a8a85">14 cleaning steps</text>
+    <path d="M180 462v40" stroke="#4ea1ff" stroke-width="3" marker-end="url(#ah)"/>
+    <text x="64" y="562" font-size="44" font-weight="700" fill="#f4f4f0">3.4M</text>
+    <text x="64" y="590" font-size="18" fill="#8a8a85">clean legs</text>
+    <rect x="64" y="606" width="96" height="26" rx="4" fill="#4ea1ff"/>
+    <text x="64" y="676" font-size="22" font-weight="700" fill="#4ea1ff">10.2M events</text>
+  </g>
+  <path d="M326 430h44" stroke="#8a8a85" stroke-width="3" marker-end="url(#ah)"/>
+
+  <!-- 02 temporal graph -->
+  <g>
+    <rect x="380" y="150" width="420" height="560" rx="12" fill="#151515" stroke="#2a2a2a"/>
+    <g stroke="#3ddc97" stroke-width="2.5" fill="none" opacity=".85">
+      <path d="M590 250L590 362" marker-end="url(#ahg)"/>
+      <path d="M622 400L716 330" marker-end="url(#ahg)"/>
+      <path d="M560 420L470 520" marker-end="url(#ahg)"/>
+      <path d="M620 420L706 520" marker-end="url(#ahg)"/>
+    </g>
+    <g font-size="16" fill="#3ddc97">
+      <text x="600" y="312">t1</text><text x="676" y="350">t2</text><text x="488" y="470">t3</text><text x="672" y="470">t4</text>
+    </g>
+    <g font-size="17" font-weight="700" text-anchor="middle" fill="#0d0d0d">
+      <circle cx="590" cy="222" r="34" fill="#4ea1ff"/><text x="590" y="228">CTR</text>
+      <circle cx="590" cy="395" r="40" fill="#3ddc97"/><text x="590" y="401">SHIP</text>
+      <circle cx="744" cy="312" r="32" fill="#ffc247"/><text x="744" y="318">CAR</text>
+      <circle cx="450" cy="548" r="34" fill="#ff3358"/><text x="450" y="554">PORT</text>
+      <circle cx="730" cy="548" r="34" fill="#b18cff"/><text x="730" y="554">AIR</text>
+    </g>
+    <!-- memory chips -->
+    <g fill="#3ddc97">
+      <rect x="406" y="180" width="10" height="26" rx="2" opacity=".9"/><rect x="420" y="188" width="10" height="18" rx="2" opacity=".6"/><rect x="434" y="176" width="10" height="30" rx="2" opacity=".8"/><rect x="448" y="192" width="10" height="14" rx="2" opacity=".5"/>
+    </g>
+    <text x="406" y="232" font-size="16" fill="#8a8a85">memory per node</text>
+    <!-- timeline -->
+    <path d="M410 640H770" stroke="#3a3a3a" stroke-width="2" marker-end="url(#ah)"/>
+    <g fill="#3ddc97"><circle cx="440" cy="640" r="6"/><circle cx="500" cy="640" r="6"/><circle cx="530" cy="640" r="6"/><circle cx="610" cy="640" r="6"/><circle cx="690" cy="640" r="6"/><circle cx="715" cy="640" r="6"/></g>
+    <text x="410" y="682" font-size="17" fill="#8a8a85">events stream in time order</text>
+  </g>
+  <path d="M806 430h20" stroke="#8a8a85" stroke-width="3" marker-end="url(#ah)"/>
+
+  <!-- 03 model -->
+  <g font-size="19" fill="#f4f4f0">
+    <rect x="830" y="150" width="280" height="560" rx="12" fill="#151515" stroke="#2a2a2a"/>
+    <rect x="852" y="178" width="236" height="76" rx="8" fill="#1d1d1d" stroke="#ff3358" stroke-opacity=".5"/>
+    <text x="870" y="210">message +</text><text x="870" y="236">GRU memory</text>
+    <path d="M970 256v30" stroke="#8a8a85" stroke-width="2.5" marker-end="url(#ah)"/>
+    <rect x="852" y="290" width="236" height="76" rx="8" fill="#1d1d1d" stroke="#ff3358" stroke-opacity=".5"/>
+    <text x="870" y="322">route embeddings</text><text x="870" y="348" fill="#8a8a85">32 + 32 + 16</text>
+    <path d="M970 368v30" stroke="#8a8a85" stroke-width="2.5" marker-end="url(#ah)"/>
+    <rect x="852" y="402" width="236" height="76" rx="8" fill="#1d1d1d" stroke="#ff3358" stroke-opacity=".5"/>
+    <text x="870" y="434">3 task encoders</text><text x="870" y="460" fill="#8a8a85" font-size="16">journey · segment · leg</text>
+    <path d="M970 480v30" stroke="#8a8a85" stroke-width="2.5" marker-end="url(#ah)"/>
+    <rect x="852" y="514" width="236" height="76" rx="8" fill="#ff3358" fill-opacity=".14" stroke="#ff3358"/>
+    <text x="870" y="546" font-weight="700">8 prediction heads</text>
+    <g fill="#ff3358"><rect x="870" y="562" width="18" height="14" rx="2"/><rect x="894" y="562" width="18" height="14" rx="2"/><rect x="918" y="562" width="18" height="14" rx="2"/><rect x="942" y="562" width="18" height="14" rx="2"/><rect x="966" y="562" width="18" height="14" rx="2"/><rect x="990" y="562" width="18" height="14" rx="2"/><rect x="1014" y="562" width="18" height="14" rx="2"/><rect x="1038" y="562" width="18" height="14" rx="2"/></g>
+    <text x="852" y="640" font-size="17" fill="#8a8a85">2.26M parameters</text>
+    <text x="852" y="666" font-size="17" fill="#8a8a85">4-stage curriculum</text>
+    <text x="852" y="692" font-size="17" fill="#8a8a85">6 GB laptop GPU</text>
+  </g>
+  <path d="M1112 430h22" stroke="#8a8a85" stroke-width="3" marker-end="url(#ah)"/>
+
+  <!-- 04 forecast -->
+  <g>
+    <rect x="1140" y="150" width="230" height="560" rx="12" fill="#151515" stroke="#2a2a2a"/>
+    <path d="M1160 400C1190 398 1205 250 1230 240S1270 340 1300 372S1340 396 1352 398V400Z" fill="url(#fc)" stroke="#ffc247" stroke-width="3"/>
+    <path d="M1160 400H1352" stroke="#3a3a3a" stroke-width="2"/>
+    <path d="M1232 220V400" stroke="#f4f4f0" stroke-width="2" stroke-dasharray="5 5"/>
+    <text x="1162" y="200" font-size="16" fill="#8a8a85">predicted days</text>
+    <text x="1162" y="478" font-size="17" fill="#8a8a85">MAE</text>
+    <text x="1162" y="528" font-size="46" font-weight="700" fill="#ffc247">14.53d</text>
+    <text x="1162" y="558" font-size="17" fill="#8a8a85">baseline 14.83d</text>
+    <text x="1162" y="620" font-size="20" font-weight="700" fill="#f4f4f0">road −60%</text>
+    <text x="1162" y="650" font-size="20" font-weight="700" fill="#f4f4f0">rail −34%</text>
+    <text x="1162" y="690" font-size="15" fill="#8a8a85">on unseen routes</text>
+  </g>
+</svg>

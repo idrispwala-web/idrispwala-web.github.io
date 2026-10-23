@@ -1,0 +1,1322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Idris Presswala</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8' shape-rendering='crispEdges'%3E%3Crect width='8' height='8' fill='%230a0a0a'/%3E%3Cpath fill='%23f4f4f0' d='M2 1h2v6H2z'/%3E%3Cpath fill='%23ff3358' d='M5 5h2v2H5z'/%3E%3C/svg%3E">
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="AI engineer: RAG pipelines, agentic workflows and automation for logistics, industry and robotics.">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+/* Pixel-signature, dark-first. One ink, one accent, surfaces by tone step. Motion is layered on top and switched off for reduced motion. */
+:root{
+  --bg:#0a0a0a; --fg:#f4f4f0; --dim:#b4b4b0; --faint:#7d7d78; --accent:#ff3358;
+  --s1:#121212; --s2:#1a1a1a; --s3:#242424;
+  --border:rgba(244,244,240,.1); --border-hi:rgba(244,244,240,.22); --panel:rgba(244,244,240,.05);
+  --ink-on-accent:#0a0a0a;
+  --ok:#34d399; --warn:#f5a623; --violet:#a78bfa; --blue:#4f9bf0; --orange:#f07a45; --grey:#a1a1aa;
+  --display:"Silkscreen",ui-monospace,monospace;
+  --body:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --g:clamp(16px,4vw,56px); --max:1440px;
+  --ease:cubic-bezier(.16,1,.3,1);
+  color-scheme:dark;
+}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){
+  --bg:#f4f4f0; --fg:#0a0a0a; --dim:#3f3f46; --faint:#6b6b66; --accent:#b0102a; --ink-on-accent:#f4f4f0;
+  --s1:#eaeae5; --s2:#e0e0da; --s3:#d4d4cd;
+  --border:rgba(10,10,10,.1); --border-hi:rgba(10,10,10,.24); --panel:rgba(10,10,10,.04);
+  --ok:#047857; --warn:#92560e; --violet:#7c3aed; --blue:#1f66c2; --orange:#c2410c; --grey:#5f6370;
+  color-scheme:light}}
+:root[data-theme="light"]{
+  --bg:#f4f4f0; --fg:#0a0a0a; --dim:#3f3f46; --faint:#6b6b66; --accent:#b0102a; --ink-on-accent:#f4f4f0;
+  --s1:#eaeae5; --s2:#e0e0da; --s3:#d4d4cd;
+  --border:rgba(10,10,10,.1); --border-hi:rgba(10,10,10,.24); --panel:rgba(10,10,10,.04);
+  --ok:#047857; --warn:#92560e; --violet:#7c3aed; --blue:#1f66c2; --orange:#c2410c; --grey:#5f6370;
+  color-scheme:light}
+
+*{box-sizing:border-box}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+.lenis.lenis-smooth [data-lenis-prevent]{overscroll-behavior:contain}
+.lenis.lenis-stopped{overflow:hidden}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 17px/1.6 var(--body);-webkit-font-smoothing:antialiased;overflow-x:clip}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:90;opacity:.05;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+::selection{background:var(--accent);color:var(--ink-on-accent)}
+a{color:inherit}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+h1,h2,h3{margin:0;text-wrap:balance}
+p,dl,dd,ul,ol{margin:0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.mono{font-family:var(--mono)}
+.cap{font:500 12px/1.4 var(--mono);color:var(--faint)}
+.wrap{max-width:var(--max);margin:0 auto;padding-left:max(var(--g),env(safe-area-inset-left,0px));padding-right:max(var(--g),env(safe-area-inset-right,0px))}
+.pill{display:inline-flex;align-items:center;gap:8px;font:500 12px var(--mono);color:var(--c,var(--ok));white-space:nowrap}
+.pill i{width:7px;height:7px;background:currentColor}
+
+/* buttons */
+.btn{--bc:var(--accent);position:relative;display:inline-flex;align-items:center;gap:10px;padding:15px 26px;font:700 13px var(--display);letter-spacing:.04em;text-decoration:none;
+  background:var(--bc);color:var(--ink-on-accent);border:0;cursor:pointer;overflow:hidden;isolation:isolate;transition:transform .5s var(--ease)}
+.btn::before{content:"";position:absolute;inset:0;background:var(--fg);transform:translateY(101%);transition:transform .5s var(--ease);z-index:-1}
+.btn:hover::before{transform:none}
+.btn.ghost{background:transparent;color:var(--fg);box-shadow:inset 0 0 0 1.5px var(--border-hi)}
+.btn.ghost:hover{color:var(--bg)}
+.btn .ar{display:inline-block;transition:transform .5s var(--ease)}
+.btn:hover .ar{transform:translateX(4px)}
+.btn:active{transform:scale(.97)}
+
+/* top bar */
+.progress{position:fixed;top:0;left:0;right:0;height:3px;background:var(--accent);transform-origin:0 50%;transform:scaleX(0);z-index:60}
+/* custom scrollbar: pixel rail with a tick per section */
+html.js{scrollbar-width:none}
+html.js::-webkit-scrollbar{display:none}
+.rail{position:fixed;right:8px;top:96px;bottom:28px;width:18px;z-index:55;cursor:pointer;display:none}
+.rail::before{content:"";position:absolute;left:8px;top:0;bottom:0;width:2px;background:repeating-linear-gradient(var(--faint) 0 2px,transparent 2px 6px);opacity:.55}
+.rail .tk{position:absolute;left:6px;width:6px;height:6px;padding:0;border:0;background:var(--faint);transform:translateY(-50%);cursor:pointer;transition:background-color .3s,transform .3s var(--ease)}
+.rail .tk.on{background:var(--accent)}
+.rail .tk:hover{transform:translateY(-50%) scale(1.6)}
+.rail-thumb{position:absolute;left:5px;top:0;width:8px;background:repeating-linear-gradient(var(--accent) 0 4px,transparent 4px 6px);cursor:grab;transition:left .25s var(--ease),width .25s var(--ease)}
+.rail:hover .rail-thumb,.rail.drag .rail-thumb{left:3px;width:12px}
+.rail.drag .rail-thumb{cursor:grabbing}
+.rail-tip{position:absolute;right:24px;top:50%;transform:translate(6px,-50%);font:500 11px var(--mono);white-space:nowrap;background:var(--fg);color:var(--bg);padding:5px 9px;opacity:0;transition:opacity .25s,transform .4s var(--ease);pointer-events:none}
+.rail:hover .rail-tip,.rail.drag .rail-tip,.rail.moving .rail-tip{opacity:1;transform:translate(0,-50%)}
+@media (pointer:fine) and (min-width:861px){.js .rail{display:block}.js .progress{display:none}}
+.bar{position:fixed;top:0;left:0;right:0;z-index:50;transition:transform .6s var(--ease),background-color .4s}
+.bar .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;height:72px}
+.bar.solid{background:color-mix(in srgb,var(--bg) 92%,transparent)}
+/* see-through bar only ever sits over the always-dark hero, so it takes the dark colours in both themes */
+.bar:not(.solid){--fg:#f4f4f0;--dim:#b4b4b0;--faint:#8a8a85;--accent:#ff3358;--ink-on-accent:#0a0a0a;--s2:#1a1a1a;--s3:#242424;color:var(--fg)}
+.bar.away{transform:translateY(-100%)}
+.mark{font:700 1.15rem var(--display);letter-spacing:.06em;text-decoration:none}
+.mark b{color:var(--accent);font-weight:700}
+.links{display:flex;align-items:center;gap:30px}
+.links a{position:relative;font:500 14px var(--body);text-decoration:none;color:var(--dim);transition:color .3s}
+.links a::after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:2px;background:var(--accent);transform:scaleX(0);transform-origin:100% 50%;transition:transform .5s var(--ease)}
+.links a:hover{color:var(--fg)}
+.links a:hover::after{transform:scaleX(1);transform-origin:0 50%}
+.bar-end{display:flex;align-items:center;gap:10px}
+.theme{font:500 12px var(--mono);padding:9px 12px;border:0;background:var(--s2);color:var(--fg);cursor:pointer;transition:background .3s}
+.theme:hover{background:var(--s3)}
+.bar .btn{padding:11px 18px;font-size:11px}
+
+/* hero: always dark, so the drawn pipeline grid sits on its own ground in both themes */
+.hero{--fg:#f4f4f0;--dim:#b4b4b0;--faint:#8a8a85;--accent:#ff3358;--ink-on-accent:#0a0a0a;--border-hi:rgba(244,244,240,.22);--bg:#0a0a0a;--s2:#1a1a1a;
+  position:relative;min-height:100svh;background:#0a0a0a;color:var(--fg);overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end}
+.hero-art{position:absolute;inset:0;pointer-events:none}
+.hero-art .pz{position:absolute;inset:-4%;will-change:transform}
+.hero-art canvas{width:100%;height:100%;display:block;
+  -webkit-mask-image:linear-gradient(90deg,transparent 8%,#000 55%);mask-image:linear-gradient(90deg,transparent 8%,#000 55%)}
+.hero-in{position:relative;width:100%;padding-top:140px;padding-bottom:clamp(40px,8vh,96px)}
+.status{display:inline-flex;align-items:center;gap:10px;font:500 13px var(--mono);color:var(--dim);margin-bottom:clamp(20px,3vh,36px)}
+.status i{width:8px;height:8px;background:var(--ok);animation:blink 2s steps(2,jump-none) infinite}
+@keyframes blink{50%{opacity:.25}}
+.name{font:700 clamp(3rem,11.6vw,12.5rem)/.86 var(--display);letter-spacing:-.01em;display:flex;flex-direction:column}
+.name .ln{display:block;overflow:hidden;padding-bottom:.06em}
+.name .ln:last-child{color:var(--accent)}
+.name .ch{display:inline-block}
+/* Silkscreen's bold W fills in solid; use the regular W thickened sideways so it stays readable */
+.w{display:inline-block;font-weight:400;text-shadow:.06em 0 currentColor;margin-right:.06em}
+.hero-foot{display:grid;grid-template-columns:minmax(0,1.1fr) auto;align-items:end;gap:32px;margin-top:clamp(28px,4vh,48px)}
+.lede{font:400 clamp(1.15rem,1.6vw,1.5rem)/1.45 var(--body);max-width:34ch;color:var(--fg)}
+.cta{display:flex;flex-wrap:wrap;gap:12px}
+.cue{position:absolute;right:var(--g);top:50%;writing-mode:vertical-rl;font:500 12px var(--mono);color:var(--faint);text-decoration:none;display:flex;align-items:center;gap:12px}
+.cue::after{content:"";width:1.5px;height:56px;background:linear-gradient(var(--accent),var(--accent)) 0 0/100% 40% no-repeat,rgba(244,244,240,.15);animation:cue 2.2s var(--ease) infinite}
+@keyframes cue{0%{background-position:0 -100%}100%{background-position:0 250%}}
+
+/* ticker */
+.ticker{background:var(--accent);color:var(--ink-on-accent);overflow:hidden;padding:18px 0;font:700 15px var(--display);letter-spacing:.03em;white-space:nowrap}
+.track{display:flex;width:max-content;animation:tick 48s linear infinite}
+.ticker:hover .track{animation-play-state:paused}
+.track ul{display:flex;list-style:none;padding:0;margin:0}
+.track li{display:flex;align-items:center;gap:22px;padding-right:22px}
+.track li::after{content:"";width:9px;height:9px;background:currentColor}
+.track b{font-weight:700}
+.track span{font:500 13px var(--mono);letter-spacing:0;opacity:.85}
+@keyframes tick{to{transform:translateX(-50%)}}
+
+/* section rhythm */
+.sec{padding-block:clamp(80px,10vw,150px) 0;scroll-margin-top:40px}
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:clamp(40px,6vw,80px)}
+.sec-head h2{font:700 clamp(2.6rem,7.4vw,7rem)/.9 var(--display);letter-spacing:-.01em}
+.sec-head p{color:var(--dim);max-width:36ch;font-size:1.05rem}
+
+/* about */
+.about-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(32px,6vw,96px);align-items:start}
+.portrait{position:relative;overflow:hidden;background:var(--s1)}
+.photo{display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;object-position:50% 22%;transform:scale(1.12);will-change:transform}
+.portrait figcaption{position:absolute;left:0;bottom:0;background:var(--bg);padding:10px 14px;font:500 12px var(--mono);color:var(--dim)}
+.statement{font:400 clamp(1.35rem,2.3vw,2.1rem)/1.38 var(--body);letter-spacing:-.01em;max-width:30ch}
+.statement em{font-style:normal;color:var(--accent)}
+.meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px 40px;margin-top:clamp(40px,5vw,64px)}
+.meta div{padding-top:16px;box-shadow:inset 0 2px 0 var(--s3)}
+.meta dt{font:500 12px var(--mono);color:var(--faint);margin-bottom:6px}
+.meta dd{font-size:1.02rem}
+.meta .wide{grid-column:1 / -1}
+
+/* domains: big rows that fill with their hue */
+.tiles{display:flex;flex-direction:column}
+.tile{all:unset;box-sizing:border-box;cursor:pointer;position:relative;isolation:isolate;display:grid;grid-template-columns:minmax(0,4fr) minmax(0,5fr) auto;align-items:center;gap:24px;
+  padding:clamp(22px,2.6vw,36px) clamp(12px,1.6vw,24px);box-shadow:inset 0 -1px 0 var(--border);transition:color .5s var(--ease)}
+.tile::before{content:"";position:absolute;inset:0;background:var(--c);transform:scaleY(0);transform-origin:50% 100%;transition:transform .6s var(--ease);z-index:-1}
+.tile:focus-visible::before{transform:scaleY(1)}
+.tile:focus-visible{color:var(--ink-on-accent)}
+.tile:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.tile-top{display:contents}
+.tile-name{display:flex;align-items:center;gap:14px;font:600 clamp(1.3rem,2.6vw,2.3rem)/1.1 var(--body);letter-spacing:-.02em;transition:transform .6s var(--ease)}
+.tile-name i{width:12px;height:12px;background:var(--c);flex:none;transition:background .3s}
+.tile:focus-visible .tile-name{transform:translateX(14px)}
+.tile:focus-visible .tile-name i{background:var(--ink-on-accent)}
+.tile p{color:var(--dim);font-size:1rem;grid-column:2;grid-row:1;transition:color .4s}
+.tile:focus-visible p{color:var(--ink-on-accent)}
+.num{font:700 clamp(2.6rem,5vw,4.6rem)/1 var(--display);color:var(--c);white-space:nowrap;text-align:right;min-width:2.5ch;transition:color .3s}
+.tile:focus-visible .num{color:var(--ink-on-accent)}
+.num small{display:block;font:500 12px var(--mono);color:var(--faint);margin-top:6px;transition:color .3s}
+.tile:focus-visible .num small{color:var(--ink-on-accent)}
+/* touch screens would keep the fill after a tap, so hover only where a mouse can hover */
+@media (hover:hover){.tile:hover::before{transform:scaleY(1)}.tile:hover{color:var(--ink-on-accent)}.tile:hover .tile-name{transform:translateX(14px)}.tile:hover .tile-name i{background:var(--ink-on-accent)}.tile:hover p{color:var(--ink-on-accent)}.tile:hover .num{color:var(--ink-on-accent)}.tile:hover .num small{color:var(--ink-on-accent)}}
+
+/* projects */
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:clamp(40px,5vw,72px)}
+.chip{font:500 13px var(--mono);padding:10px 16px;border:0;background:var(--s1);color:var(--dim);cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:background .3s,color .3s,transform .4s var(--ease)}
+.chip i{width:7px;height:7px;background:var(--c,var(--fg))}
+.chip:hover{background:var(--s2);color:var(--fg)}
+.chip:active{transform:scale(.96)}
+.chip[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+.chip[aria-pressed="true"] i{background:var(--c,var(--bg))}
+#shown{margin-left:auto;font:500 13px var(--mono);color:var(--faint)}
+.proj{position:relative;cursor:pointer;min-width:0}
+.proj h3{font:600 1.1rem/1.3 var(--body)}
+.open{all:unset;cursor:pointer}
+.open::after{content:"";position:absolute;inset:0;z-index:2}
+.open:focus-visible::after{outline:2px solid var(--accent);outline-offset:2px}
+.proj a{position:relative;z-index:3}
+.thumb{background:#0d0d0d;overflow:hidden}
+.thumb svg,.dlg-flow svg{display:block;width:100%;height:auto}
+.thumb .shot{display:block;width:100%;aspect-ratio:1400/760;object-fit:cover;object-position:top}
+.fl-box{fill:var(--panel);stroke:var(--border-hi)}
+.fl-out{stroke:var(--c)}
+.fl-txt{fill:var(--fg);font:500 13px var(--mono)}
+.fl-num{fill:var(--faint);font:500 10px var(--mono)}
+.fl-arr{stroke:var(--c);fill:none;stroke-width:1.5}
+.fl-dot{fill:var(--c)}
+.fields{display:flex;flex-direction:column;gap:18px}
+.fields div{display:grid;grid-template-columns:5.5rem minmax(0,1fr);gap:16px}
+.fields dt{font:500 12px/1.9 var(--mono);color:var(--faint)}
+.fields dd{color:var(--dim)}
+.fields .res dt{color:var(--c)}
+.fields .res dd{color:var(--fg)}
+.fields a{color:var(--accent)}
+.stack{display:flex;flex-wrap:wrap;gap:6px}
+.stack span{font:400 12px var(--mono);padding:4px 10px;background:var(--s1);color:var(--dim)}
+.proj-more{font:500 12px var(--mono);color:var(--c)}
+
+/* featured: big alternating case blocks */
+.feat-list{display:flex;flex-direction:column;gap:clamp(96px,11vw,168px)}
+.feat{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);grid-template-areas:"pic top" "pic ttl" "pic fld" "pic stk" "pic more";grid-template-rows:auto auto 1fr auto auto;column-gap:clamp(32px,5vw,80px);row-gap:20px}
+.feat:nth-child(even){grid-template-columns:minmax(0,5fr) minmax(0,7fr);grid-template-areas:"top pic" "ttl pic" "fld pic" "stk pic" "more pic"}
+.feat .proj-top{grid-area:top;display:flex;justify-content:space-between;gap:12px}
+.feat .proj-top .mono{font-size:12px;color:var(--faint)}
+.feat h3{grid-area:ttl;font:600 clamp(1.7rem,3vw,2.75rem)/1.08 var(--body);letter-spacing:-.025em;transition:color .4s}
+.feat:hover h3{color:var(--c)}
+.feat .thumb{grid-area:pic;align-self:start;position:relative}
+.feat .thumb .shot{transition:transform 1.2s var(--ease)}
+.feat:hover .thumb .shot{transform:scale(1.04)}
+.feat .thumb::after{content:"Open case";position:absolute;right:16px;bottom:16px;padding:12px 18px;background:var(--c);color:#0a0a0a;font:700 12px var(--display);letter-spacing:.04em;
+  transform:translateY(calc(100% + 24px));transition:transform .6s var(--ease)}
+.feat:hover .thumb::after{transform:none}
+.feat .fields{grid-area:fld}
+.feat .fields .res dd{font-size:1.15rem;line-height:1.45}
+.feat .stack{grid-area:stk}
+.feat .proj-more{grid-area:more}
+
+/* the rest: dense rows with a floating preview */
+.rest-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin:clamp(72px,8vw,120px) 0 24px}
+.rest-head h3{font:700 clamp(1.6rem,3vw,2.6rem)/1 var(--display)}
+.rest{display:flex;flex-direction:column}
+.row{display:grid;grid-template-columns:9.5rem minmax(0,1.15fr) minmax(0,1fr) 6.5rem 1.5rem;align-items:center;gap:24px;padding:22px 12px;box-shadow:inset 0 -1px 0 var(--border);transition:background .4s,padding .6s var(--ease)}
+.row .proj-top{display:contents}
+.row .pill{grid-column:1;grid-row:1}
+.row .proj-top .mono{grid-column:4;grid-row:1;font-size:12px;color:var(--faint);text-align:right}
+.row h3{grid-column:2;grid-row:1;font-size:clamp(1.05rem,1.4vw,1.25rem);letter-spacing:-.01em;transition:transform .6s var(--ease)}
+.row .fields{grid-column:3;grid-row:1}
+.row .fields div:not(.res){display:none}
+.row .fields .res{display:block}
+.row .fields .res dt{display:none}
+.row .fields .res dd{color:var(--dim);font-size:.93rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.row .thumb,.row .stack{display:none}
+.row .proj-more{grid-column:5;grid-row:1;font-size:0;justify-self:end}
+.row .proj-more::before{content:"→";font:500 18px var(--mono);display:inline-block;transition:transform .5s var(--ease)}
+.row:hover{background:var(--s1)}
+.row:hover h3{transform:translateX(10px);color:var(--c)}
+.row:hover .proj-more::before{transform:translateX(4px) rotate(-45deg)}
+.peek{position:fixed;left:0;top:0;width:min(380px,30vw);pointer-events:none;z-index:40;opacity:0;transform:translate3d(-50%,-50%,0) scale(.85);transition:opacity .35s,scale .5s var(--ease);background:#0d0d0d}
+.peek.on{opacity:1;scale:1.17}
+.peek img{display:block;width:100%;height:auto}
+
+/* career: a line that fills as you scroll */
+.pipe{position:relative;--p:0}
+.pipe::before,.pipe::after{content:"";position:absolute;left:7px;top:12px;bottom:12px;width:2px;background:var(--s3)}
+.pipe::after{background:var(--accent);transform-origin:50% 0;transform:scaleY(var(--p))}
+.step{display:grid;grid-template-columns:16px minmax(0,1fr) auto;gap:6px 28px;padding:0 0 clamp(40px,5vw,64px);position:relative}
+.step:last-child{padding-bottom:0}
+.node{width:16px;height:16px;background:var(--bg);box-shadow:inset 0 0 0 2px var(--faint);margin-top:9px;position:relative;z-index:1;transition:background .4s,box-shadow .4s}
+.step.lit .node{background:var(--accent);box-shadow:none}
+.step.now .node{background:var(--accent);box-shadow:none;animation:pulse 1.8s ease-in-out infinite;color:var(--accent)}
+.step-role{font:600 clamp(1.3rem,2.2vw,1.85rem)/1.2 var(--body);letter-spacing:-.02em}
+.step-org{color:var(--faint);margin-top:4px}
+.step-when{font:500 13px var(--mono);color:var(--faint);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;padding-top:12px}
+.step.now .step-when{color:var(--accent)}
+.step ul{grid-column:2 / 4;padding-left:20px;color:var(--dim);display:flex;flex-direction:column;gap:6px;margin-top:14px;max-width:72ch}
+.step li::marker{color:var(--accent)}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 currentColor}50%{box-shadow:0 0 0 7px transparent}}
+
+/* research & education */
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(32px,5vw,80px)}
+.box{display:flex;flex-direction:column;min-width:0}
+.box-head{font:700 1.25rem var(--display);display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding-bottom:14px}
+.box-head>span{font:500 12px var(--mono);color:var(--faint)}
+.box .box-head:not(:first-child){margin-top:48px}
+.docs{display:flex;flex-direction:column}
+.doc{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 20px;padding:18px 12px;box-shadow:inset 0 -1px 0 var(--border);transition:background .4s,padding .6s var(--ease)}
+.doc:hover{background:var(--s1);padding-left:20px}
+.doc b{font-weight:500;font-size:1.02rem}
+.doc .mono{font-size:12px;color:var(--faint);grid-column:1}
+.doc .yr{font:700 13px var(--display);color:var(--accent);grid-row:1 / 3;grid-column:2;align-self:center}
+
+/* toolkit */
+.skills{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px;background:var(--bg)}
+.skills>div{background:var(--s1);padding:clamp(22px,2.4vw,34px);display:flex;flex-direction:column;gap:16px;min-width:0;transition:background .4s}
+.skills>div:hover{background:var(--s2)}
+.skills .cap{font:700 1.05rem var(--display);color:var(--fg)}
+.skills p{display:flex;flex-wrap:wrap;gap:6px}
+.skills p span{font:400 13px var(--mono);padding:5px 10px;background:var(--bg);color:var(--dim);transition:background .3s,color .3s}
+.skills p span:hover{background:var(--accent);color:var(--ink-on-accent)}
+
+/* footer: the name returns at full width */
+footer{--faint:#8a8a85;--accent:#ff3358;--ink-on-accent:#0a0a0a;margin-top:clamp(64px,8vw,120px);background:#0a0a0a;color:#f4f4f0;padding-top:clamp(64px,8vw,120px);overflow:hidden}
+.foot-top{display:flex;justify-content:space-between;align-items:flex-end;gap:32px;flex-wrap:wrap}
+.foot-top p{font:400 clamp(1.4rem,2.6vw,2.3rem)/1.25 var(--body);letter-spacing:-.02em;max-width:24ch}
+.foot-links{display:flex;gap:12px;flex-wrap:wrap}
+footer .btn.ghost{color:#f4f4f0;box-shadow:inset 0 0 0 1.5px rgba(244,244,240,.25)}
+footer .btn::before{background:#f4f4f0}
+footer .btn.ghost:hover{color:#0a0a0a}
+.giant{display:block;font:700 clamp(2.4rem,11.4vw,13rem)/.8 var(--display);letter-spacing:-.02em;margin-top:clamp(48px,7vw,110px);white-space:nowrap;color:#ff3358}
+.giant .ch{display:inline-block;transition:transform .5s var(--ease),color .3s}
+.giant .ch:hover{transform:translateY(-12%);color:#f4f4f0}
+.foot-base{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:22px 0 calc(22px + env(safe-area-inset-bottom,0px));font:500 12px var(--mono);color:#8a8a85}
+
+/* project pop-up */
+dialog{width:min(1040px,calc(100vw - 32px));max-height:calc(100dvh - 32px);padding:0;border:0;background:var(--bg);color:var(--fg);overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--accent) transparent}
+dialog::backdrop{background:rgba(0,0,0,.72)}
+dialog[open]{animation:dlg .4s var(--ease)}
+dialog[open]::backdrop{animation:fade .4s ease-out}
+@keyframes dlg{from{opacity:0;transform:translateY(40px) scale(.98)}}
+@keyframes fade{from{opacity:0}}
+.dlg-head{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px clamp(18px,3vw,36px);background:var(--bg);box-shadow:0 1px 0 var(--border)}
+.dlg-head .proj-top{display:flex;gap:16px;align-items:center}
+.dlg-head .proj-top .mono{font-size:12px;color:var(--faint)}
+.dlg-close{font:700 11px var(--display);letter-spacing:.04em;padding:10px 16px;border:0;background:var(--s2);color:var(--fg);cursor:pointer;white-space:nowrap;flex:none;transition:background .3s,color .3s}
+.dlg-close:hover{background:var(--accent);color:var(--ink-on-accent)}
+.dlg-body{padding:clamp(20px,3vw,36px);display:grid;grid-template-columns:240px minmax(0,1fr);gap:clamp(24px,3vw,44px)}
+.dlg-body h3{font:700 clamp(1.5rem,3vw,2.4rem)/1.05 var(--display);grid-column:1 / -1}
+.dlg-side{display:flex;flex-direction:column;gap:12px}
+.dlg-flow{padding:14px;background:var(--s1)}
+.dlg-flow svg{max-width:240px;margin:0 auto}
+.dlg-main{display:flex;flex-direction:column;gap:20px;min-width:0}
+.dlg-role{color:var(--dim);font-size:1.05rem}
+.dlg-more{list-style:none;padding:0;display:flex;flex-direction:column;gap:10px}
+.dlg-more li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;color:var(--dim)}
+.dlg-more li::before{content:"";width:8px;height:8px;background:var(--c);margin-top:9px}
+.shots{display:grid;gap:14px}
+.shots figure{margin:0;background:var(--s1)}
+.shots img,.shots video{display:block;width:100%;height:auto}
+.shots figcaption{font:500 12px var(--mono);color:var(--faint);padding:10px 12px}
+html:has(dialog[open]){overflow:hidden}
+
+/* category hues */
+[data-k="logistics"]{--c:var(--ok)} [data-k="rag"]{--c:var(--blue)} [data-k="agents"]{--c:var(--violet)}
+[data-k="automation"]{--c:var(--warn)} [data-k="robotics"]{--c:var(--orange)} [data-k="manufacturing"]{--c:var(--grey)}
+[data-k="research"]{--c:var(--accent)}
+
+/* motion: content is visible without script; .js arms the entrances */
+@media (prefers-reduced-motion:no-preference){
+  /* animation, not transition, so the hover transitions on the same elements survive */
+  .js [data-r]{opacity:0}
+  .js [data-r].in{animation:rise 1.1s var(--ease) both;animation-delay:calc(var(--i,0) * 80ms)}
+  .js [data-r].px.in,.js [data-r].dec.in{animation:none;opacity:1}
+  .js .feat .thumb .shot{scale:1.25;transition:scale 1.6s var(--ease),transform 1.2s var(--ease)}
+  .js .feat.in .thumb .shot{scale:1}
+  .js .name .ch{transform:translateY(105%);animation:up 1s var(--ease) forwards;animation-delay:calc(.15s + var(--i) * 45ms)}
+  .js .hero .status,.js .hero-foot{opacity:0;animation:rise 1.1s var(--ease) forwards}
+  .js .hero .status{animation-delay:.1s}.js .hero-foot{animation-delay:.75s}
+  .js .hero-art .pz{animation:drift 2.8s var(--ease) backwards}
+  .js .giant .ch{transform:translateY(100%);transition:transform 1s var(--ease);transition-delay:calc(var(--i) * 45ms)}
+  .js .giant.in .ch{transform:none}
+}
+@keyframes up{to{transform:none}}
+@keyframes rise{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+@keyframes drift{from{opacity:0;transform:scale(1.15)}}
+@media (prefers-reduced-motion:reduce){
+  .track{animation:none;flex-wrap:wrap}.track ul+ul{display:none}
+  .status i,.step.now .node,.cue::after{animation:none}
+  .photo{transform:none}
+  dialog[open]{animation:fade .2s ease-out}
+  *,*::before,*::after{transition-duration:.01ms!important}
+}
+
+@media (max-width:1100px){
+  .row{grid-template-columns:8.5rem minmax(0,1fr) 5.5rem 1.5rem}
+  .row .fields{display:none}
+  .row .proj-top .mono{grid-column:3}
+  .row .proj-more{grid-column:4}
+  .skills{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:860px){
+  .links{display:none}
+  .hero-foot{grid-template-columns:minmax(0,1fr)}
+  .cue{display:none}
+  .about-grid,.two{grid-template-columns:minmax(0,1fr)}
+  .portrait{max-width:420px}
+  .tile{grid-template-columns:minmax(0,1fr) auto;gap:10px 16px}
+  .tile p{grid-column:1 / -1;grid-row:2}
+  .feat,.feat:nth-child(even){grid-template-columns:minmax(0,1fr);grid-template-areas:"top" "ttl" "pic" "fld" "stk" "more";grid-template-rows:none}
+  .feat .thumb::after{display:none}
+  .peek{display:none}
+}
+@media (max-width:340px){.bar .wrap{gap:8px}.bar .btn{padding:12px 9px}}
+@media (max-width:620px){
+  body{font-size:16px}
+  .name{font-size:11.4vw;white-space:nowrap}
+  .hero-art canvas{-webkit-mask-image:linear-gradient(180deg,#000 20%,transparent 62%);mask-image:linear-gradient(180deg,#000 20%,transparent 62%)}
+  .bar .btn{padding:12px 12px}
+  .bar-end{gap:6px}
+  .bar .btn,.dlg-close{font-size:12px}
+  .fl-num{font-size:12px}
+  .foot-base a{display:inline-block;padding:12px 0;margin:-12px 0}
+  .meta{grid-template-columns:minmax(0,1fr)}
+  .row{grid-template-columns:minmax(0,1fr) 1.5rem;gap:6px 12px;padding:20px 4px}
+  .row .pill{grid-column:1;grid-row:1}
+  .row h3{grid-column:1;grid-row:2}
+  .row .proj-top .mono{grid-column:1;grid-row:3;text-align:left}
+  .row .proj-more{grid-column:2;grid-row:1 / 4;align-self:center}
+  .skills{grid-template-columns:minmax(0,1fr)}
+  .step{grid-template-columns:16px minmax(0,1fr);gap:4px 18px}
+  .step-when{grid-column:2;text-align:left;grid-row:2;padding-top:0}
+  .step ul{grid-column:2;grid-row:3}
+  .fields div{grid-template-columns:minmax(0,1fr);gap:2px}
+  .dlg-body{grid-template-columns:minmax(0,1fr)}
+  #shown{margin-left:0;width:100%}
+}
+/* filters sit with the "more projects" list */
+.proj[hidden]{display:none}
+.rest-head+.filters{margin-bottom:12px}
+.empty{padding:28px 12px;font:500 13px var(--mono);color:var(--faint)}
+/* dialog: no native scrollbar, a reading bar in the head instead */
+dialog{scrollbar-width:none}
+dialog::-webkit-scrollbar{display:none}
+.dlg-prog{position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--accent);transform:scaleX(0);transform-origin:0 50%}
+/* pipeline step tooltips */
+.fl-step{cursor:help;outline:none}
+.fl-step:hover .fl-box,.fl-step:focus-visible .fl-box{stroke:var(--accent);stroke-width:2}
+.tip{position:fixed;z-index:10;max-width:260px;padding:10px 12px;background:var(--fg);color:var(--bg);font:500 12px/1.45 var(--mono);pointer-events:none}
+/* career: compact timeline, details open in the dialog */
+.step ul{display:none}
+button.job{font:inherit;letter-spacing:inherit;color:inherit;background:none;border:0;padding:0;text-align:left;cursor:pointer;transition:color .3s}
+button.job .ar{color:var(--accent);display:inline-block;transition:transform .4s var(--ease)}
+button.job:hover,button.job:focus-visible{color:var(--accent)}
+button.job:hover .ar{transform:translateX(4px)}
+#dlg.job .dlg-side{display:none}
+#dlg.job .dlg-body{grid-template-columns:minmax(0,1fr)}
+.dlg-links{display:flex;flex-direction:column;margin-top:10px}
+.dlg-links button{font:500 1rem var(--body);color:var(--fg);background:none;border:0;padding:14px 4px;text-align:left;cursor:pointer;box-shadow:inset 0 -1px 0 var(--border);display:flex;justify-content:space-between;gap:12px;transition:background .3s,color .3s}
+.dlg-links button:hover{background:var(--s1);color:var(--accent)}
+/* contact form */
+.contact{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;max-width:760px;margin-top:clamp(32px,4vw,56px)}
+.contact label{display:flex;flex-direction:column;gap:6px;font:500 12px var(--mono);color:var(--faint)}
+.contact input,.contact textarea{font:400 1rem var(--body);color:var(--fg);background:var(--s1);border:0;border-radius:0;box-shadow:inset 0 -1px 0 var(--border-hi);padding:14px}
+.contact input:focus-visible,.contact textarea:focus-visible{outline:2px solid var(--accent);outline-offset:0}
+.contact textarea{min-height:140px;resize:vertical}
+.contact .full,.form-foot{grid-column:1 / -1}
+.form-foot{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
+.form-note{font:500 12px/1.5 var(--mono);color:var(--faint);max-width:52ch}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+/* pixel cursor (fine pointers only, built by script); the native cursor stays */
+.cur{position:fixed;left:0;top:0;width:8px;height:8px;pointer-events:none;z-index:95;background:#fff;mix-blend-mode:difference;opacity:0;transition:opacity .3s;
+  display:grid;place-items:center;overflow:hidden;white-space:nowrap;font:400 10px/1 var(--display);letter-spacing:.04em;color:#0a0a0a}
+.cur.label,.cur.bar{background:var(--cc,var(--accent));mix-blend-mode:normal}
+.cur.tile{background:none;mix-blend-mode:normal;box-shadow:inset 0 0 0 2px var(--ink-on-accent);
+  -webkit-mask:linear-gradient(#000 0 0) 0 0/14px 14px no-repeat,linear-gradient(#000 0 0) 100% 0/14px 14px no-repeat,linear-gradient(#000 0 0) 0 100%/14px 14px no-repeat,linear-gradient(#000 0 0) 100% 100%/14px 14px no-repeat;
+  mask:linear-gradient(#000 0 0) 0 0/14px 14px no-repeat,linear-gradient(#000 0 0) 100% 0/14px 14px no-repeat,linear-gradient(#000 0 0) 0 100%/14px 14px no-repeat,linear-gradient(#000 0 0) 100% 100%/14px 14px no-repeat}
+.pxv{position:absolute;pointer-events:none;z-index:40}
+.ripples{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:94}
+.has-cur .feat .thumb::after{display:none}
+.contact.done>:not(.sent){display:none}
+.sent{grid-column:1 / -1;display:flex;flex-direction:column;align-items:flex-start;gap:28px}
+.sent[hidden]{display:none}
+.sent-msg{font:700 clamp(1.6rem,4.4vw,3.2rem)/1.15 var(--display);color:var(--fg);max-width:20ch}
+.sent-msg::after{content:"";display:inline-block;width:.55em;height:.85em;margin-left:.12em;background:var(--accent);vertical-align:-.05em;animation:blink 1s steps(1) infinite}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@media (prefers-reduced-motion:no-preference){.sent:not([hidden]){animation:rise .8s var(--ease)}}
+@media (prefers-reduced-motion:reduce){.sent-msg::after{animation:none}}
+@media (max-width:620px){.contact{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+<body>
+
+
+<div class="progress" aria-hidden="true"></div>
+<div class="rail" id="rail" aria-hidden="true"><i class="rail-thumb"><b class="rail-tip"></b></i></div>
+
+<nav class="bar" aria-label="Main">
+  <div class="wrap">
+    <a class="mark" href="#top" aria-label="Idris Presswala, back to top">IDRIS<b>.</b>P</a>
+    <div class="links">
+      <a href="#about">About</a>
+      <a href="#projects">Work</a>
+      <a href="#career">Career</a>
+      <a href="#research">Research</a>
+      <a href="#toolkit">Toolkit</a>
+    </div>
+    <div class="bar-end">
+      <button class="theme" type="button" id="theme" aria-label="Switch colour theme">theme</button>
+      <a class="btn" href="#contact">Contact <span class="ar">&darr;</span></a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="hero-art" aria-hidden="true"><div class="pz"><canvas></canvas></div></div>
+  <div class="wrap hero-in">
+    <p class="status"><i></i>AI engineer &middot; full-time since Apr 2026 &middot; Germany</p>
+    <h1 class="name"><span class="sr">Idris Presswala</span><span class="ln" aria-hidden="true">IDRIS</span><span class="ln" aria-hidden="true">PRESSWALA</span></h1>
+    <div class="hero-foot">
+      <p class="lede">I build RAG pipelines, agentic workflows and automation that replace manual data work, with roots in robotics and industrial motion control.</p>
+      <div class="cta">
+        <a class="btn" href="#projects" data-mag>See the work <span class="ar">&darr;</span></a>
+        <a class="btn ghost" href="https://github.com/idrispwala-web" target="_blank" rel="noopener" data-mag>GitHub <span class="ar">&nearr;</span></a>
+      </div>
+    </div>
+  </div>
+  <a class="cue" href="#about">Scroll</a>
+</header>
+
+<div class="ticker" aria-label="Selected results">
+  <div class="track">
+    <ul>
+      <li><b>&minus;52% tokens</b><span>per question, MCP connector</span></li>
+      <li><b>2&ndash;3 weeks earlier</b><span>median lead of the fastest tracking provider</span></li>
+      <li><b>21 &rarr; 4</b><span>wrong doctor matches in auto-sent claims</span></li>
+      <li><b>8.2M records</b><span>cleaned into a training-ready dataset</span></li>
+      <li><b>787,957</b><span>test predictions in the transit-time model</span></li>
+      <li><b>17 &rarr; 33 of 37</b><span>correct answers after switching to hybrid retrieval</span></li>
+      <li><b>515 tests</b><span>passing in the RAG benchmark lab</span></li>
+      <li><b>&plusmn;0.5 mm</b><span>simulation vs real robot</span></li>
+      <li><b>20 DOF</b><span>humanoid robot I co-founded and built</span></li>
+      <li><b>1 &rarr; 8 kHz</b><span>drive frequency: jerky stepper to smooth and quiet</span></li>
+    </ul>
+    <ul aria-hidden="true">
+      <li><b>&minus;52% tokens</b><span>per question, MCP connector</span></li>
+      <li><b>2&ndash;3 weeks earlier</b><span>median lead of the fastest tracking provider</span></li>
+      <li><b>21 &rarr; 4</b><span>wrong doctor matches in auto-sent claims</span></li>
+      <li><b>8.2M records</b><span>cleaned into a training-ready dataset</span></li>
+      <li><b>787,957</b><span>test predictions in the transit-time model</span></li>
+      <li><b>17 &rarr; 33 of 37</b><span>correct answers after switching to hybrid retrieval</span></li>
+      <li><b>515 tests</b><span>passing in the RAG benchmark lab</span></li>
+      <li><b>&plusmn;0.5 mm</b><span>simulation vs real robot</span></li>
+      <li><b>20 DOF</b><span>humanoid robot I co-founded and built</span></li>
+      <li><b>1 &rarr; 8 kHz</b><span>drive frequency: jerky stepper to smooth and quiet</span></li>
+    </ul>
+  </div>
+</div>
+
+<main>
+
+<section class="sec wrap" id="about">
+  <div class="sec-head"><h2 data-r>About</h2></div>
+  <div class="about-grid">
+    <figure class="portrait" data-r style="margin:0"><img class="photo" src="photo.jpg" alt="Portrait of Idris Presswala" width="720" height="960" loading="lazy"><figcaption>Idris Presswala &middot; AI Engineer</figcaption></figure>
+    <div>
+      <p class="statement" data-r>I build RAG pipelines, agentic workflows and automation that replace manual data work. Before that I spent five years in <em>mechanical engineering</em>, ending in R&amp;D, automating engineering work for automotive and aerospace clients.</p>
+      <dl class="meta">
+        <div data-r style="--i:1"><dt>Now</dt><dd>AI Engineer, logistics technology</dd></div>
+        <div data-r style="--i:2"><dt>Based in</dt><dd>Germany</dd></div>
+        <div data-r style="--i:3"><dt>Degree</dt><dd>MSc Digitalization and Automation</dd></div>
+        <div data-r style="--i:4"><dt>Background</dt><dd>BTech Mechanical Engineering</dd></div>
+        <div data-r style="--i:5" class="wide"><dt>Focus</dt><dd>RAG &middot; agentic workflows &middot; automation</dd></div>
+        <div data-r style="--i:6" class="wide"><dt>Languages</dt><dd>English, German (elementary), Gujarati, Urdu, Hindi, Marathi</dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<section class="sec wrap" id="domains">
+  <div class="sec-head"><h2 data-r>Domains</h2><p data-r style="--i:1">Six areas, from freight data to robot arms. Pick one to filter the projects.</p></div>
+  <div class="tiles">
+    <button class="tile" type="button" id="d-logistics" data-k="logistics" data-f="logistics"><div class="tile-top"><span class="tile-name"><i></i>Logistics</span><span class="num">7</span></div><p>Comparing container-tracking providers, scraping carrier sites, automating freight documents and predicting transit times.</p></button>
+    <button class="tile" type="button" id="d-rag" data-k="rag" data-f="rag"><div class="tile-top"><span class="tile-name"><i></i>RAG pipelines</span><span class="num">3</span></div><p>Knowledge bases with approval before publishing, hybrid retrieval, citations, rules for when to refuse, and evaluation sets.</p></button>
+    <button class="tile" type="button" id="d-agents" data-k="agents" data-f="agents"><div class="tile-top"><span class="tile-name"><i></i>Agentic workflows</span><span class="num">4</span></div><p>Agents that use tools, with human approval steps. A booking assistant for chat and email, and a connector that uses fewer tokens.</p></button>
+    <button class="tile" type="button" id="d-automation" data-k="automation" data-f="automation"><div class="tile-top"><span class="tile-name"><i></i>Automation</span><span class="num">3</span></div><p>n8n and low-code workflows, OCR and data extraction, and pipelines that run without supervision in place of manual data entry.</p></button>
+    <button class="tile" type="button" id="d-robotics" data-k="robotics" data-f="robotics"><div class="tile-top"><span class="tile-name"><i></i>Robotics</span><span class="num">5<small>+1 role</small></span></div><p>A 20-DOF humanoid I co-founded and built, stepper tuning on a real gantry, PLC motion control, robot-arm programming and vision for moving objects.</p></button>
+    <button class="tile" type="button" id="d-manufacturing" data-k="manufacturing" data-f="manufacturing"><div class="tile-top"><span class="tile-name"><i></i>Automotive, aerospace &amp; manufacturing</span><span class="num">1<small>+1 role</small></span></div><p>Workflow automation, predictive maintenance and digitalisation of engineering processes at an engineering services company.</p></button>
+  </div>
+</section>
+
+<section class="sec wrap" id="projects">
+  <div class="sec-head"><h2 data-r>Selected work</h2><p data-r style="--i:1">Six cases in depth, then everything else. Open any project for the full pipeline, screenshots and stack.</p></div>
+  <div class="feat-list" id="feat-list">
+    <article class="proj feat" data-c="logistics" data-k="logistics" data-n="2">
+      <div class="proj-top"><span class="pill"><i></i>Logistics</span><span class="mono">Work &middot; 2026</span></div>
+      <h3><button class="open" type="button" aria-haspopup="dialog">Tracking-data analytics dashboards</button></h3>
+      <div class="thumb" aria-hidden="true"></div>
+      <dl class="fields">
+        <div><dt>Problem</dt><dd>The comparison needed to show which provider reports first, which is accurate, and which is noisy or sparse.</dd></div>
+        <div><dt>Built</dt><dd>An operator dashboard with a journey map per container, a comparison of six dates for every leg, and a chat assistant. Next to it, an analytics deep-dive built from four full provider databases.</dd></div>
+        <div class="res"><dt>Result</dt><dd>One provider was first on every type of actual date, with a median lead of about 2–3 weeks, but revised each event 4.7 times on average. 96% of the current system's hourly polls returned identical data.</dd></div>
+      </dl>
+      <div class="stack"><span>Python</span><span>JavaScript</span><span>SQLite</span><span>PostgreSQL</span><span>OpenAI</span></div>
+    </article>
+    <article class="proj feat" data-c="automation" data-k="automation" data-n="4">
+      <div class="proj-top"><span class="pill"><i></i>Automation</span><span class="mono">Freelance &middot; 2026</span></div>
+      <h3><button class="open" type="button" aria-haspopup="dialog">Insurance claims document AI</button></h3>
+      <div class="thumb" aria-hidden="true"></div>
+      <dl class="fields">
+        <div><dt>Problem</dt><dd>Staff read scanned claim PDFs and typed about 25 fields per claim into a claims system by hand.</dd></div>
+        <div><dt>Built</dt><dd>A pipeline that runs without supervision: portal sync, GPU OCR to markdown, then a text-only AI step that fills gaps and is only allowed answers that appear in the page. Complete claims are sent automatically and the rest go to a queue for people.</dd></div>
+        <div class="res"><dt>Result</dt><dd>Checked against 109 claims entered by people: wrong doctor matches among auto-sent claims fell from 21 of 80 to 4 of 69.</dd></div>
+      </dl>
+      <div class="stack"><span>Python</span><span>FastAPI</span><span>PaddleOCR</span><span>Playwright</span><span>React</span><span>Docker</span></div>
+    </article>
+    <article class="proj feat" data-c="agents" data-k="agents" data-n="8">
+      <div class="proj-top"><span class="pill"><i></i>Agents</span><span class="mono">Work &middot; 2026</span></div>
+      <h3><button class="open" type="button" aria-haspopup="dialog">Token-lean MCP connector</button></h3>
+      <div class="thumb" aria-hidden="true"></div>
+      <dl class="fields">
+        <div><dt>Problem</dt><dd>A company tool server exposed 38 tools, so every question cost AI clients a lot of tokens.</dd></div>
+        <div><dt>Built</dt><dd>A connector that offers 4 tools instead of 38. It ships as a Claude Code plugin, a local server and a hosted OAuth endpoint, and comes with a benchmark anyone can rerun.</dd></div>
+        <div class="res"><dt>Result</dt><dd>Over 24 test runs, input tokens per question fell from 110k to 53k (−52%). Both versions answered 12 of 12 questions correctly.</dd></div>
+      </dl>
+      <div class="stack"><span>Node.js</span><span>MCP</span><span>OAuth 2.1</span></div>
+    </article>
+    <article class="proj feat" data-c="research logistics" data-k="research" data-n="15">
+      <div class="proj-top"><span class="pill"><i></i>Research</span><span class="mono">MSc thesis &middot; part 2/3</span></div>
+      <h3><button class="open" type="button" aria-haspopup="dialog">A temporal graph neural network for freight transit times</button></h3>
+      <div class="thumb" aria-hidden="true"></div>
+      <dl class="fields">
+        <div><dt>Problem</dt><dd>Route averages treat every shipment alike. They miss how carriers, ports and shipments influence each other over time.</dd></div>
+        <div><dt>Built</dt><dd>A heterogeneous temporal graph network in PyTorch Geometric: 5 node types with type-specific GRU memory, factored route embeddings, 3 task encoders and 8 prediction heads, trained with a 4-stage curriculum.</dd></div>
+        <div class="res"><dt>Result</dt><dd>Beat the route-median baseline across 787,957 test predictions (14.53 vs 14.83 days MAE), with error cut by 60% on road and 34% on rail.</dd></div>
+      </dl>
+      <div class="stack"><span>PyTorch 2.6</span><span>PyTorch Geometric</span><span>CUDA / AMP FP16</span><span>AdamW</span></div>
+    </article>
+    <article class="proj feat" data-c="robotics" data-k="robotics" data-n="21">
+      <div class="proj-top"><span class="pill"><i></i>Robotics</span><span class="mono">Co-founder &middot; 2021</span></div>
+      <h3><button class="open" type="button" aria-haspopup="dialog">A 20-DOF humanoid robot, designed and built</button></h3>
+      <div class="thumb" aria-hidden="true"></div>
+      <dl class="fields">
+        <div><dt>Problem</dt><dd>Our start-up needed a humanoid prototype for home healthcare that moves like a person, on a small budget.</dd></div>
+        <div><dt>Built</dt><dd>As co-founder I designed the forward and inverse kinematics, calculated the 3D-printed joints, and owned power management and calibration of 16 high-torque servos on a Raspberry Pi with PID control.</dd></div>
+        <div class="res"><dt>Result</dt><dd>A full-size, about 1.95 m robot with 20 degrees of freedom, tested for walking, balance and handling objects. In my MSc I co-wrote its ethics and EU-regulation review.</dd></div>
+      </dl>
+      <div class="stack"><span>SOLIDWORKS</span><span>MSC Adams</span><span>ANSYS</span><span>Raspberry Pi</span><span>Inverse kinematics</span><span>PID</span></div>
+    </article>
+    <article class="proj feat" data-c="robotics" data-k="robotics" data-n="17">
+      <div class="proj-top"><span class="pill"><i></i>Robotics</span><span class="mono">Study &middot; 2025</span></div>
+      <h3><button class="open" type="button" aria-haspopup="dialog">PLC motion control in TwinCAT</button></h3>
+      <div class="thumb" aria-hidden="true"></div>
+      <dl class="fields">
+        <div><dt>Problem</dt><dd>Two simulated axes had to start and stop together, and trace lines, arcs and a rounded square.</dd></div>
+        <div><dt>Built</dt><dd>A TwinCAT 3 PLC program on Beckhoff's NC-I interpolation channel, using PLCopen motion blocks and a state machine, plus an operator screen that sets the target and traces the path live.</dd></div>
+        <div class="res"><dt>Result</dt><dd>Linear, diagonal and circular paths with both axes starting and stopping together, shown in the course presentation.</dd></div>
+      </dl>
+      <div class="stack"><span>TwinCAT 3</span><span>NC-I (TF5100)</span><span>PLCopen Tc2_MC2</span><span>IEC 61131-3</span><span>PLC HMI</span></div>
+    </article>
+  </div>
+  <div class="rest-head" id="rest-head"><h3 data-r>More projects</h3><span class="cap" data-r>Hover for a preview, click for details</span></div>
+  <div class="filters" role="group" aria-label="Filter projects">
+    <button class="chip" type="button" id="f-all" data-f="all" aria-pressed="true">All</button>
+    <button class="chip" type="button" id="f-logistics" data-f="logistics" data-k="logistics" aria-pressed="false"><i></i>Logistics</button>
+    <button class="chip" type="button" id="f-rag" data-f="rag" data-k="rag" aria-pressed="false"><i></i>RAG</button>
+    <button class="chip" type="button" id="f-agents" data-f="agents" data-k="agents" aria-pressed="false"><i></i>Agents</button>
+    <button class="chip" type="button" id="f-automation" data-f="automation" data-k="automation" aria-pressed="false"><i></i>Automation</button>
+    <button class="chip" type="button" id="f-robotics" data-f="robotics" data-k="robotics" aria-pressed="false"><i></i>Robotics</button>
+    <button class="chip" type="button" id="f-manufacturing" data-f="manufacturing" data-k="manufacturing" aria-pressed="false"><i></i>Manufacturing</button>
+    <button class="chip" type="button" id="f-research" data-f="research" data-k="research" aria-pressed="false"><i></i>Research</button>
+    <span id="shown">23 shown</span>
+  </div>
+  <p class="empty" id="empty" hidden>No other projects in this area.</p>
+  <div class="rest" id="rest">
+    <article class="proj row" data-c="logistics" data-k="logistics" data-n="1">
+      <div class="proj-top"><span class="pill"><i></i>Logistics</span><span class="mono">Work &middot; 2026</span></div>
+      <h3><button class="open" type="button" aria-haspopup="dialog">Container-tracking provider comparison</button></h3>
+      <div class="thumb" aria-hidden="true"></div>
+      <dl class="fields">
+        <div><dt>Problem</dt><dd>A global freight forwarder wanted evidence on which container-tracking data provider is the most accurate and the fastest, measured against its current system.</dd></div>
+        <div><dt>Built</dt><dd>A comparison harness made of n8n ingestion workflows, a Postgres mirror, carrier-site scrapers that supply reference data, full-history archives for each provider, and two dashboards.</dd></div>
+        <div class="res"><dt>Result</dt><dd>The data and dashboards for the provider recommendation, which is still in progress.</dd></div>
+      </dl>
+      <div class="stack"><span>n8n</span><span>PostgreSQL</span><span>Python</span><span>FastAPI</span><span>SQLite</span><span>Docker</span><span>Azure</span></div>
+    </article>
+    <article class="proj row" data-c="logistics" data-k="logistics" data-n="3">
+      <div class="proj-top"><span class="pill"><i></i>Logistics</span><span class="mono">Work &middot; 2026</span></div>
+      <h3><button class="open" type="button" aria-haspopup="dialog">Carrier tracking scraper service</button></h3>
+      <div class="thumb" aria-hidden="true"></div>
+      <dl class="fields">
+        <div><dt>Problem</dt><dd>Reference container data had to come from carrier websites, which block simple scrapers.</dd></div>
+        <div><dt>Built</dt><dd>A FastAPI service that drives carrier sites in a real browser and captures their JSON APIs where it can. An LLM then maps each raw payload to one shared schema, covering 8 ocean carriers and 16 airlines.</dd></div>
+        <div class="res"><dt>Result</dt><dd>In a 10-container test, 5 lookups succeeded and 3 returned a clean "not supported". The other 2 exposed bugs. The fixes are in a pull request that is not merged yet.</dd></div>
+      </dl>
+      <div class="stack"><span>Python</span><span>FastAPI</span><span>Playwright</span><span>Azure OpenAI</span></div>
+    </article>
+    <article class="proj row" data-c="rag" data-k="rag" data-n="5">
+      <div class="proj-top"><span class="pill"><i></i>RAG</span><span class="mono">Work &middot; 2026</span></div>
+      <h3><button class="open" type="button" aria-haspopup="dialog">Knowledge chatbot with approval before publishing</button></h3>
+      <div class="thumb" aria-hidden="true"></div>
+      <dl class="fields">
+        <div><dt>Problem</dt><dd>A freight forwarder wanted a public chatbot that only says what a person has approved.</dd></div>
+        <div><dt>Built</dt><dd>An upload portal that converts each file format to markdown. Nothing is chunked or embedded until it is approved. A public chat by text and voice, and a read-only MCP server so ChatGPT can use the same knowledge. An evaluation set of 200 real questions, still to be labelled.</dd></div>
+        <div class="res"><dt>Result</dt><dd>The staging version is built and tested.</dd></div>
+      </dl>
+      <div class="stack"><span>FastAPI</span><span>pgvector</span><span>React</span><span>Azure OpenAI</span><span>Microsoft Graph</span><span>MCP</span></div>
+    </article>
+    <article class="proj row" data-c="rag" data-k="rag" data-n="6">
+      <div class="proj-top"><span class="pill"><i></i>RAG</span><span class="mono">Work &middot; 2026</span></div>
+      <h3><button class="open" type="button" aria-haspopup="dialog">Learning assistant with cited video clips</button></h3>
+      <div class="thumb" aria-hidden="true"></div>
+      <dl class="fields">
+        <div><dt>Problem</dt><dd>Users of a freight customer portal needed step-by-step help taken only from real training material.</dd></div>
+        <div><dt>Built</dt><dd>Hybrid retrieval (keyword plus vector, with rank fusion). A similarity threshold below which the assistant declines to answer. Strict JSON answers with one repair pass, human approval tied to a content hash, row-level security, and trimmed video clips cut to each answer.</dd></div>
+        <div class="res"><dt>Result</dt><dd>Pilot deployed. Tested against three evaluation sets totalling 135 cases.</dd></div>
+      </dl>
+      <div class="stack"><span>FastAPI</span><span>pgvector</span><span>TypeScript</span><span>FFmpeg</span><span>Docling</span></div>
+    </article>
+    <article class="proj row" data-c="rag" data-k="rag" data-n="7">
+      <div class="proj-top"><span class="pill"><i></i>RAG</span><span class="mono">Personal &middot; 2026</span></div>
+      <h3><button class="open" type="button" aria-haspopup="dialog">RAG benchmark lab</button></h3>
+      <div class="thumb" aria-hidden="true"></div>
+      <dl class="fields">
+        <div><dt>Problem</dt><dd>I wanted to learn RAG by building every layer, and to find out which retriever works best on my own documents.</dd></div>
+        <div><dt>Built</dt><dd>Five retrievers behind one interface (Chroma, Qdrant, LanceDB, BM25, hybrid). Evaluation pairs generated by an LLM, checked for leakage and reviewed by me. A benchmark that reports hit rate, MRR, an LLM-judge score and latency.</dd></div>
+        <div class="res"><dt>Result</dt><dd>All six roadmap phases are complete, with 515 tests passing.</dd></div>
+      </dl>
+      <div class="stack"><span>Python</span><span>Ollama</span><span>Qdrant</span><span>LanceDB</span><span>llama.cpp</span></div>
+    </article>
+    <article class="proj row" data-c="agents" data-k="agents" data-n="9">
+      <div class="proj-top"><span class="pill"><i></i>Agents</span><span class="mono">Work &middot; 2026</span></div>
+      <h3><button class="open" type="button" aria-haspopup="dialog">Support-ticket triage agent</button></h3>
+      <div class="thumb" aria-hidden="true"></div>
+      <dl class="fields">
+        <div><dt>Problem</dt><dd>Incoming tickets had to be sorted by product and type, then routed to engineering or product.</dd></div>
+        <div><dt>Built</dt><dd>A 44-node n8n workflow. An LLM classifies each ticket and posts a card to the team chat, and a person approves it before a bug or feature request is created.</dd></div>
+        <div class="res"><dt>Result</dt><dd>Classification and the approval path were tested live. Not switched on yet: it waits for two credentials.</dd></div>
+      </dl>
+      <div class="stack"><span>n8n</span><span>GPT-4.1</span><span>Teams</span><span>Azure DevOps</span></div>
+    </article>
+    <article class="proj row" data-c="agents" data-k="agents" data-n="10">
+      <div class="proj-top"><span class="pill"><i></i>Agents</span><span class="mono">Work &middot; 2025</span></div>
+      <h3><button class="open" type="button" aria-haspopup="dialog">Multi-channel booking assistant</button></h3>
+      <div class="thumb" aria-hidden="true"></div>
+      <dl class="fields">
+        <div><dt>Problem</dt><dd>A regional freight office read transport booking requests by hand and typed the data in.</dd></div>
+        <div><dt>Built</dt><dd>A booking assistant for chat and email. It extracts booking data with function calling, sends PDF confirmations, tracks shipments, and classifies attached documents from their images.</dd></div>
+        <div class="res"><dt>Result</dt><dd>Grew from a 21-step prototype to about 366 steps across 15 flows.</dd></div>
+      </dl>
+      <div class="stack"><span>GPT-4o</span><span>GPT-4o Vision</span><span>Low-code agents</span><span>JavaScript</span></div>
+    </article>
+    <article class="proj row" data-c="automation" data-k="automation" data-n="11">
+      <div class="proj-top"><span class="pill"><i></i>Automation</span><span class="mono">Work &middot; 2025</span></div>
+      <h3><button class="open" type="button" aria-haspopup="dialog">HS-code extractor for freight documents</button></h3>
+      <div class="thumb" aria-hidden="true"></div>
+      <dl class="fields">
+        <div><dt>Problem</dt><dd>Finding customs codes in invoices and packing lists by hand is slow and error-prone.</dd></div>
+        <div><dt>Built</dt><dd>A web app that sends a PDF through an n8n workflow (OCR, then AI classification). It lists each code with its page, description and a verification link, and exports to Excel.</dd></div>
+        <div class="res"><dt>Result</dt><dd>Deployed. All 8 project objectives met.</dd></div>
+      </dl>
+      <div class="stack"><span>React</span><span>TypeScript</span><span>n8n</span><span>Tailwind</span><span>Vercel</span></div>
+    </article>
+    <article class="proj row" data-c="agents" data-k="agents" data-n="12">
+      <div class="proj-top"><span class="pill"><i></i>Agents</span><span class="mono">Work &middot; 2026</span></div>
+      <h3><button class="open" type="button" aria-haspopup="dialog">Dangerous-goods declaration agent</button></h3>
+      <div class="thumb" aria-hidden="true"></div>
+      <dl class="fields">
+        <div><dt>Problem</dt><dd>Staff re-typed air-freight dangerous-goods declarations into an import file.</dd></div>
+        <div><dt>Built</dt><dd>An n8n workflow that splits the PDF into pages. An orchestrator agent passes each page to two specialist agents, one for shipment-level fields and one for per-row fields, and the results become a 40-column import file.</dd></div>
+        <div class="res"><dt>Result</dt><dd>Built and marked active in n8n. No accuracy figures yet.</dd></div>
+      </dl>
+      <div class="stack"><span>n8n</span><span>LLM agents</span><span>JavaScript</span></div>
+    </article>
+    <article class="proj row" data-c="research logistics" data-k="research" data-n="13">
+      <div class="proj-top"><span class="pill"><i></i>Research</span><span class="mono">MSc thesis &middot; 2026</span></div>
+      <h3><button class="open" type="button" aria-haspopup="dialog">Transit-time prediction with a temporal graph network</button></h3>
+      <div class="thumb" aria-hidden="true"></div>
+      <dl class="fields">
+        <div><dt>Problem</dt><dd>Freight transit times are hard to predict. The data is dirty, and a few shipments take far longer than most.</dd></div>
+        <div><dt>Built</dt><dd>A 14-step cleaning pipeline that cut 8.2M shipment-leg records to 3.4M usable ones. A graph with five node types, and a temporal graph network with 8 output heads and 22 engineered features. A dashboard that explains predictions and lets you try "what if" scenarios.</dd></div>
+        <div class="res"><dt>Result</dt><dd>Mean absolute error of 14.53 days, against 14.83 for a route-median baseline. Main finding: data quality mattered more than the model's architecture.</dd></div>
+      </dl>
+      <div class="stack"><span>PyTorch Geometric</span><span>Polars</span><span>DuckDB</span><span>Streamlit</span></div>
+    </article>
+    <article class="proj row" data-c="research logistics" data-k="research" data-n="14">
+      <div class="proj-top"><span class="pill"><i></i>Research</span><span class="mono">MSc thesis &middot; part 1/3</span></div>
+      <h3><button class="open" type="button" aria-haspopup="dialog">Cleaning 8.2 million freight records into a training-ready dataset</button></h3>
+      <div class="thumb" aria-hidden="true"></div>
+      <dl class="fields">
+        <div><dt>Problem</dt><dd>About half of the raw shipment legs carried placeholder or fabricated timestamps. A model trained on them would learn noise.</dd></div>
+        <div><dt>Built</dt><dd>A 14-step cleaning pipeline in DuckDB and Polars over 6 relational tables: filters for unknown legs and predicted timestamps, a year-error repair, container de-duplication and event-group leg pairing.</dd></div>
+        <div class="res"><dt>Result</dt><dd>8.2M raw legs became 3.4M clean legs and 10.2M time-ordered graph interactions. Usable training labels rose from 18.1% to 39.6%.</dd></div>
+      </dl>
+      <div class="stack"><span>DuckDB</span><span>Polars</span><span>Python</span><span>Parquet</span></div>
+    </article>
+    <article class="proj row" data-c="research logistics" data-k="research" data-n="16">
+      <div class="proj-top"><span class="pill"><i></i>Research</span><span class="mono">MSc thesis &middot; part 3/3</span></div>
+      <h3><button class="open" type="button" aria-haspopup="dialog">Opening the black box: explainable transit forecasts</button></h3>
+      <div class="thumb" aria-hidden="true"></div>
+      <dl class="fields">
+        <div><dt>Problem</dt><dd>Operators do not act on a number they cannot question. A neural forecast needs reasons attached.</dd></div>
+        <div><dt>Built</dt><dd>An explanation layer on top of the model: gradient-based feature importance, attention inspection via hooks, rule-based plain-language summaries, and a 4-view Streamlit dashboard with what-if scenarios.</dd></div>
+        <div class="res"><dt>Result</dt><dd>Every prediction comes with its main drivers, a delay severity level and a readable summary.</dd></div>
+      </dl>
+      <div class="stack"><span>Streamlit</span><span>Plotly</span><span>Polars</span><span>PyTorch hooks</span></div>
+    </article>
+    <article class="proj row" data-c="robotics" data-k="robotics" data-n="18">
+      <div class="proj-top"><span class="pill"><i></i>Robotics</span><span class="mono">Study &middot; 2025</span></div>
+      <h3><button class="open" type="button" aria-haspopup="dialog">Robot-arm programming and simulation</button></h3>
+      <div class="thumb" aria-hidden="true"></div>
+      <dl class="fields">
+        <div><dt>Problem</dt><dd>A small KUKA industrial robot had to draw with a pen and do pick-and-place, first in simulation and then on the real robot.</dd></div>
+        <div><dt>Built</dt><dd>A KRL spline-motion program and the simulation layouts. I co-wrote a two-person lab report that covered the robot and a stepper-motor linear-axis rig.</dd></div>
+        <div class="res"><dt>Result</dt><dd>The team report states a ±0.5 mm deviation between simulation and the real robot.</dd></div>
+      </dl>
+      <div class="stack"><span>KUKA KRL</span><span>KUKA.Sim</span><span>Visual Components</span></div>
+    </article>
+    <article class="proj row" data-c="manufacturing" data-k="manufacturing" data-n="19">
+      <div class="proj-top"><span class="pill"><i></i>Manufacturing</span><span class="mono">Study &middot; 2025</span></div>
+      <h3><button class="open" type="button" aria-haspopup="dialog">Digital planning for a tyre-plant redesign</button></h3>
+      <div class="thumb" aria-hidden="true"></div>
+      <dl class="fields">
+        <div><dt>Problem</dt><dd>An existing tyre factory needed a concept for a redesign and an extension.</dd></div>
+        <div><dt>Built</dt><dd>A co-authored concept report. It compares layout scenarios in a decision matrix and recommends a flexible, modular layout.</dd></div>
+        <div class="res"><dt>Result</dt><dd>The modular layout scored 509, against 469 for the alternative.</dd></div>
+      </dl>
+      <div class="stack"><span>Layout planning</span><span>Decision matrix</span></div>
+    </article>
+    <article class="proj row" data-c="automation" data-k="automation" data-n="20">
+      <div class="proj-top"><span class="pill"><i></i>Automation</span><span class="mono">Personal &middot; 2026</span></div>
+      <h3><button class="open" type="button" aria-haspopup="dialog">AI-coding rules installer</button></h3>
+      <div class="thumb" aria-hidden="true"></div>
+      <dl class="fields">
+        <div><dt>Problem</dt><dd>I wanted to set up my AI-coding rules and tools on any machine with one command.</dd></div>
+        <div><dt>Built</dt><dd>A small Go installer that writes a skill file and installs the plugins and command-line tools it depends on. It shipped through GitHub releases and Homebrew, and a winget package was submitted for review.</dd></div>
+        <div class="res"><dt>Result</dt><dd>Released as v0.1.1 under the MIT licence. <a href="https://github.com/idrispwala-web/golden-rules" target="_blank" rel="noopener">View the repo &nearr;</a></dd></div>
+      </dl>
+      <div class="stack"><span>Go</span><span>GoReleaser</span><span>Homebrew</span><span>winget</span></div>
+    </article>
+    <article class="proj row" data-c="robotics" data-k="robotics" data-n="22">
+      <div class="proj-top"><span class="pill"><i></i>Robotics</span><span class="mono">Study &middot; 2025</span></div>
+      <h3><button class="open" type="button" aria-haspopup="dialog">Smooth, quiet stepper motion on an industrial gantry</button></h3>
+      <div class="thumb" aria-hidden="true"></div>
+      <dl class="fields">
+        <div><dt>Problem</dt><dd>The stepper motors on an igus gantry robot ran jerky and loud, with a resonance zone at 300–600 RPM.</dd></div>
+        <div><dt>Built</dt><dd>Two test series on the real rig in TwinCAT 3 over EtherCAT: a drive-frequency sweep from 1 to 32 kHz, then step-by-step tuning of Kv, Kp, lag monitoring and cycle time, each run logged with TwinCAT Scope and plotted in MATLAB.</dd></div>
+        <div class="res"><dt>Result</dt><dd>Very jerky at 1 kHz, smooth and quiet from 8 kHz without load; a tuned parameter set also ran smoothly at 2 kHz.</dd></div>
+      </dl>
+      <div class="stack"><span>TwinCAT 3</span><span>Beckhoff EtherCAT</span><span>TwinCAT Scope</span><span>MATLAB</span></div>
+    </article>
+    <article class="proj row" data-c="robotics" data-k="robotics" data-n="23">
+      <div class="proj-top"><span class="pill"><i></i>Robotics</span><span class="mono">Study &middot; 2025</span></div>
+      <h3><button class="open" type="button" aria-haspopup="dialog">Spotting moving vehicles from a moving camera</button></h3>
+      <div class="thumb" aria-hidden="true"></div>
+      <dl class="fields">
+        <div><dt>Problem</dt><dd>In highway video the camera moves too, and a detector boxes every car, parked or moving.</dd></div>
+        <div><dt>Built</dt><dd>A MATLAB vision pipeline: YOLOv4 finds objects, SURF feature matching and an affine warp cancel the camera's own motion, and frame differencing with morphology marks what really moves.</dd></div>
+        <div class="res"><dt>Result</dt><dd>Only moving cars, trucks and people get a labelled box; parked cars and buildings are filtered out.</dd></div>
+      </dl>
+      <div class="stack"><span>MATLAB</span><span>YOLOv4</span><span>Computer Vision Toolbox</span><span>SURF</span></div>
+    </article>
+  </div>
+</section>
+
+<section class="sec wrap" id="career">
+  <div class="sec-head"><h2 data-r>Career</h2><p data-r style="--i:1">2019 to now: from an electric racing team to AI engineering in freight.</p></div>
+<div class="pipe">
+    <div class="step now" data-proj="Work"><span class="node"></span><div><div class="step-role">AI Engineer</div><div class="step-org">A logistics-technology company serving a global freight forwarder &middot; full-time since April 2026, working student before that</div></div><span class="step-when">2025-05 → now</span>
+      <ul><li>Build agentic workflows, RAG knowledge assistants and document AI for freight operations.</li><li>Ship them with guardrails and evaluations: schema validation, citation checks, human approval gates and before/after test sets.</li><li>Look after a shared Ubuntu VM on Azure that hosts n8n, Postgres and the project services in Docker Compose behind Traefik, with cron jobs, memory limits and a watchdog.</li><li>Built a harness that compares tracking providers and a connector that cuts token use by 52%.</li><li>Trained a graph neural network on freight shipment data, which became the basis of my MSc thesis.</li></ul></div>
+    <div class="step" data-tools="CATIA V5,3DEXPERIENCE,SIMULIA,Dymola,Machine learning,Design of experiments,Distributed computing"><span class="node"></span><div><div class="step-role">R&amp;D Engineer</div><div class="step-org">A global engineering services company with automotive and aerospace clients</div></div><span class="step-when">2022-07 → 2024-02</span>
+      <ul><li>Automated engineering workflows and digitalised engineering infrastructure (+25% workflow efficiency).</li><li>Built machine-learning models for predictive maintenance (+20% accuracy).</li><li>Built design-of-experiments pipelines on distributed computing (−30% processing time), working with CAE simulation experts.</li><li>Supported clients on CATIA, the 3DEXPERIENCE platform for SIMULIA, and Dymola.</li><li>Worked with clients to find their needs and compare technical options in CAD and CAE.</li><li>Prepared technical material and ran trainings for clients and team members.</li></ul></div>
+    <div class="step" data-tools="ANSYS Fluent,Machine learning,IoT sensors,CAD"><span class="node"></span><div><div class="step-role">Research Analyst</div><div class="step-org">An engineering services firm</div></div><span class="step-when">2022-01 → 2022-06</span>
+      <ul><li>Ran thermal-management simulations in ANSYS Fluent.</li><li>Built ML models that predict failures, and integrated IoT sensors.</li><li>Reviewed customer design proposals and specifications for feasibility, cost and maintenance.</li><li>Recommended design changes to remove machine and system faults.</li><li>Helped drafters develop structural designs in CAD.</li></ul></div>
+    <div class="step" data-proj="Co-founder" data-tools="SOLIDWORKS,MSC Adams,ANSYS Workbench,Raspberry Pi,3D printing,IoT sensors,Mechanical modelling,Tolerance analysis"><span class="node"></span><div><div class="step-role">Co-founder &amp; Robotics Engineer</div><div class="step-org">HyperSpawn Robotics, a humanoid-robotics start-up</div></div><span class="step-when">2021-07 → 2021-10</span>
+      <ul><li>Co-founded the company and built its 20-DOF, 3D-printed humanoid robot prototype.</li><li>Designed the forward and inverse kinematics and calculated the 3D-printed joints.</li><li>Owned power management (12 V Li-ion with BMS) and calibration of 16 high-torque servos.</li><li>Added IoT sensors and ML motion planning; tested and recorded every motion of the robot for R&amp;D.</li><li>Built mechanical models and tolerance analyses to test design ideas.</li></ul></div>
+    <div class="step" data-tools="IoT sensors,Machine learning,Vehicle testing"><span class="node"></span><div><div class="step-role">Project Intern</div><div class="step-org">An electric-mobility engineering organisation</div></div><span class="step-when">2021-01 → 2021-02</span>
+      <ul><li>Worked on an electric bike with IoT sensors, and applied ML to battery-performance data.</li><li>Designed and built an electric bike to industry standards.</li><li>Analysed vehicle systems such as aerodynamics, ergonomics, brakes, transmission, steering and safety.</li><li>Ran system-level vehicle tests and changed designs to meet performance targets.</li></ul></div>
+    <div class="step" data-tools="ANSYS Fluent,IoT sensors"><span class="node"></span><div><div class="step-role">Project Intern</div><div class="step-org">An industrial pump manufacturer</div></div><span class="step-when">2020-12 → 2021-07</span>
+      <ul><li>Built an IoT refrigeration system that cut brine wastage.</li><li>Built a digital twin of a sewage treatment plant in ANSYS Fluent.</li><li>Based at a university water-quality centre of excellence.</li><li>Tested equipment and systems for feasibility, design and performance.</li></ul></div>
+    <div class="step" data-tools="Maintenance manuals,Wiring diagrams,Vehicle diagnostics"><span class="node"></span><div><div class="step-role">Trainee Technician</div><div class="step-org">A motor-vehicle dealership workshop</div></div><span class="step-when">2020-08 → 2021-11</span>
+      <ul><li>Read maintenance manuals and specifications to decide whether to repair or replace parts.</li><li>Took equipment apart to reach defects.</li><li>Followed wiring diagrams to inspect electrical connections, wiring and relays.</li></ul></div>
+    <div class="step" data-tools="MATLAB,Python"><span class="node"></span><div><div class="step-role">Technical Head</div><div class="step-org">University electric-vehicle racing team</div></div><span class="step-when">2019-06 → 2021-09</span>
+      <ul><li>Led the technical work on an electric vehicle, automating powertrain systems in MATLAB and Python.</li><li>Managed the team: set goals and department deadlines, recruited team leads, and solved technical and team problems.</li><li>Results: 1st nationally at FKDC (2019), 2nd internationally at GKDC (2020) and NSD (2019), 1st in the acceleration test at Zeal Drag (2019), all-India rank 36 at Formula Bharat (2019&ndash;20).</li></ul></div>
+  </div>
+</section>
+
+<section class="sec wrap" id="research">
+  <div class="sec-head"><h2 data-r>Research</h2><p data-r style="--i:1">Publications, projects, education, awards and courses.</p></div>
+<div class="two">
+    <div class="box">
+      <div class="box-head">Publications <span>4</span></div>
+      <div class="docs">
+        <div class="doc"><b>Predictive Modelling of Transit Times Using Custom Historical Dataset and Neural Networks</b><span class="mono">MSc thesis</span><span class="yr">2026</span></div>
+        <div class="doc"><b>Design and Analysis of Eddy Current Damper</b><span class="mono">IEEE</span><span class="yr">2021</span></div>
+        <div class="doc"><b>Design and Optimization of Electric Go-kart</b><span class="mono">ICRCEST</span><span class="yr">2021</span></div>
+        <div class="doc"><b>Step towards Smart Workshop of Industry 4.0: Remote Product Monitoring System using Industrial IoT</b><span class="mono">JICR</span><span class="yr">2020</span></div>
+      </div>
+      <div class="box-head">University projects <span>4</span></div>
+      <div class="docs">
+        <div class="doc"><b>Semi-active torsional vibration damper based on smart materials</b><span class="mono">Design and development, with an industry partner</span></div>
+        <div class="doc"><b>Phase-change-material chamber that absorbs heat in an existing assembly</b><span class="mono">Design</span></div>
+        <div class="doc"><b>Devices that measure the coefficient of restitution</b><span class="mono">Design and prototypes, now used in the university labs</span></div>
+        <div class="doc"><b>Petrol scooter converted to electric</b><span class="mono">EV retrofit</span></div>
+      </div>
+    </div>
+    <div class="box">
+      <div class="box-head">Education <span>2</span></div>
+      <div class="docs">
+        <div class="doc"><b>MSc Digitalization and Automation</b><span class="mono">PFH Private University of Applied Sciences, Göttingen</span><span class="yr">2024–26</span></div>
+        <div class="doc"><b>BTech Mechanical Engineering</b><span class="mono">Vishwakarma University</span><span class="yr">2018–22</span></div>
+      </div>
+      <div class="box-head">Awards <span>3</span></div>
+      <div class="docs">
+        <div class="doc"><b>Winner, AI Agents Hackathon, Dubai</b><span class="mono">Team award</span><span class="yr">2026</span></div>
+        <div class="doc"><b>Winner, paper presentation</b><span class="mono">International E-Conference on Industry 4.0</span><span class="yr">2021</span></div>
+        <div class="doc"><b>Winner FKDC &middot; Runner-up GKDC</b><span class="mono">Student go-kart design competitions</span><span class="yr">2019&ndash;20</span></div>
+      </div>
+      <div class="box-head">Courses <span>4</span></div>
+      <div class="docs">
+        <div class="doc"><b>Electric and hybrid vehicles</b><span class="mono">x-EV, fuel cell technology, hybrid and electric powertrain</span></div>
+        <div class="doc"><b>CATIA V5 and PTC Creo 4.0</b><span class="mono">Sketching, part and assembly design, DMU kinematics, wireframe and surface</span></div>
+        <div class="doc"><b>CAE</b><span class="mono">FEA, crash, multibody dynamics, durability, fatigue, HyperMesh</span></div>
+        <div class="doc"><b>Vehicles and electronics</b><span class="mono">Vehicle design, powertrain, electronics, embedded systems, industrial automation</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec wrap" id="toolkit">
+  <div class="sec-head"><h2 data-r>Toolkit</h2><p data-r style="--i:1">What I reach for, grouped by the job it does.</p></div>
+<div class="skills">
+    <div><span class="cap">AI &amp; LLM</span><p><span>RAG (hybrid retrieval, reranking, evaluation sets)</span><span>LLM agents and tool use</span><span>MCP servers</span><span>OpenAI / Azure OpenAI</span><span>OCR and document AI</span><span>Graph neural networks</span></p></div>
+    <div><span class="cap">LLM ops &amp; guardrails</span><p><span>Local LLMs (Ollama)</span><span>Model and runtime benchmarking</span><span>Evaluation sets (hit rate, MRR, LLM judge)</span><span>Schema validation with retry (Pydantic)</span><span>Citation checks and abstention</span><span>Human approval gates</span><span>Token and cost analysis</span></p></div>
+    <div><span class="cap">Cloud &amp; infrastructure</span><p><span>Azure</span><span>Rented cloud GPUs</span><span>Ubuntu servers, VMs and WSL2</span><span>Docker Compose</span><span>Traefik, nginx and Caddy</span><span>Tailscale</span><span>OAuth 2.1 hosted services</span><span>Cron jobs, watchdogs and backups</span></p></div>
+    <div><span class="cap">Automation</span><p><span>n8n</span><span>Low-code agent platforms</span><span>Workflow orchestration</span><span>Playwright and Scrapling scraping</span><span>Docker Compose</span></p></div>
+    <div><span class="cap">Software</span><p><span>Python</span><span>FastAPI</span><span>TypeScript</span><span>React</span><span>Node.js</span><span>Go</span><span>SQL</span><span>PostgreSQL + pgvector</span><span>SQLite</span></p></div>
+    <div><span class="cap">Data</span><p><span>Polars</span><span>DuckDB</span><span>Pandas</span><span>Streamlit</span><span>Plotly</span><span>Feature engineering</span></p></div>
+    <div><span class="cap">Robotics &amp; industrial</span><p><span>TwinCAT 3 PLC</span><span>TwinCAT NC-I motion</span><span>Beckhoff EtherCAT</span><span>Stepper drive tuning</span><span>Robot kinematics (FK / IK)</span><span>MSC Adams</span><span>KUKA KRL</span><span>Visual Components</span><span>MATLAB</span><span>YOLOv4 computer vision</span><span>IoT sensors</span></p></div>
+    <div><span class="cap">Engineering</span><p><span>ANSYS Fluent</span><span>CATIA V5</span><span>SolidWorks</span><span>PTC Creo</span><span>HyperMesh</span><span>3DEXPERIENCE</span><span>Design of experiments</span><span>Arduino and Raspberry Pi prototyping</span></p></div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-top">
+      <p data-r>Building something with RAG, agents or automation? Let&rsquo;s talk.</p>
+      <div class="foot-links" data-r style="--i:1">
+        <a class="btn" href="https://www.linkedin.com/in/idrispresswala/" target="_blank" rel="noopener" data-mag>LinkedIn <span class="ar">&nearr;</span></a>
+        <a class="btn ghost" href="https://github.com/idrispwala-web" target="_blank" rel="noopener" data-mag>GitHub <span class="ar">&nearr;</span></a>
+      </div>
+    </div>
+    <form class="contact" id="contact" data-id="xljgqogg" action="https://formspree.io/f/xljgqogg" method="POST" data-r>
+      <label>Name<input name="name" autocomplete="name" required></label>
+      <label>Email<input name="email" type="email" autocomplete="email" required></label>
+      <label class="full">Message<textarea name="message" required></textarea></label>
+      <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off">
+      <div class="form-foot"><button class="btn" type="submit">Send message</button><p class="form-note" id="form-note" role="status">Sent through Formspree, a US form service. I use it only to reply to you.</p></div>
+      <div class="sent" id="sent" role="status" hidden><span class="sr" id="sent-sr"></span><p class="sent-msg" id="sent-msg" aria-hidden="true"></p><button class="btn" type="button" id="again">Write another</button></div>
+    </form>
+    <span class="giant" aria-hidden="true" data-split>PRESSWALA</span>
+    <div class="foot-base"><span>Idris Presswala &middot; 2026</span><a href="legal.html">Impressum &amp; Datenschutz</a><a href="#top">Back to top &uarr;</a></div>
+  </div>
+</footer>
+
+<div class="peek" aria-hidden="true"></div>
+
+<dialog id="dlg" aria-labelledby="dlg-title" data-lenis-prevent>
+  <div class="dlg-head"><span id="dlg-tags" class="proj-top"></span><button class="dlg-close" type="button" id="dlg-close">Close &times;</button><i class="dlg-prog" id="dlg-prog"></i></div>
+  <div class="dlg-body">
+    <h3 id="dlg-title"></h3>
+    <div class="dlg-side">
+      <span class="cap">Pipeline</span>
+      <div class="dlg-flow" id="dlg-flow"></div>
+      <span class="cap" id="dlg-period"></span>
+    </div>
+    <div class="dlg-main">
+      <p class="dlg-role" id="dlg-role"></p>
+      <div id="dlg-fields"></div>
+      <span class="cap" id="dlg-more-cap">More detail</span>
+      <ul class="dlg-more" id="dlg-more"></ul>
+      <div class="shots" id="dlg-shots"></div>
+      <div class="stack" id="dlg-stack"></div>
+    </div>
+  </div>
+</dialog>
+
+<script type="application/json" id="detail">[{"role": "Sole builder of the comparison harness.", "period": "May–Aug 2026", "details": ["The goal was a data-source shootout, not a tracking product; carrier-website scraping served only as ground truth.", "Version 2 keyed everything on consolidations, stored it in n8n data tables and mirrored it to Postgres every 15 minutes.", "Provider call counts are checked against raw payloads, never against deduplicated events.", "A memory crisis crashed n8n 11 times in 2.5 hours; chunking, paired memory limits, pruning and a watchdog fixed it, and the database shrank from 33.8 GB to 274 MB.", "A coordinate backfill raised unique map points from 35 to 523, and an hourly timeline poll raised one provider's events from 28 to 191.", "It runs on an Ubuntu VM on Azure: n8n, Postgres 16, Traefik and nginx in Docker Compose, plus a 128 GB data disk holding four archive databases filled by hourly cron jobs."], "flow": ["Shipment extract", "Provider subscribe", "Webhook ingest", "Data tables", "Postgres mirror", "Dashboards"], "steps": ["Pull the shipments to track, keyed on consolidations.", "Register each shipment with every tracking provider under test.", "Receive provider updates by webhook; call counts are checked against raw payloads.", "Store events in n8n data tables, chunked so memory stays in check.", "Mirror the tables to Postgres every 15 minutes.", "Compare providers on dashboards, including a map of 523 unique points."], "shots": [{"src": "img/d-01.svg", "caption": "Overview: how the comparison harness works, step by step"}]}, {"role": "Sole builder.", "period": "Jul–Aug 2026", "details": ["The live dashboard is a single HTML file behind nginx, so saving the file is the deploy.", "The analytics page is built from 22 extracted datasets, four parallel analysis agents and a build script, giving a static page of about 120 KB.", "One provider was first on every actual date, with a median lead of 2–3 weeks, but averaged 4.7 revisions per event.", "The incumbent system covered 94.9% of the six key dates, yet 96.4% of its hourly polls returned identical data.", "Playwright testing found map bugs with dateline crossings and empty coordinates, and two indexes cut a 20-minute query to seconds.", "Served by an nginx container on the same VM behind a Traefik route, with no-cache headers so a saved file is live at once."], "flow": ["Four full DBs", "Extract datasets", "Analysis agents", "Build static page"], "steps": ["Start from the four full databases of tracking data.", "Extract 22 datasets for analysis.", "Four analysis agents work through the datasets in parallel.", "A build script turns the results into one static page of about 120 KB."], "shots": [{"src": "img/d-02.svg", "caption": "Overview: how the analytics works, step by step"}]}, {"role": "Sole author.", "period": "Jun–Oct 2026", "details": ["FastAPI with Playwright driving headful Chrome; it covers 8 ocean carriers and 16 airlines.", "It intercepts the carrier site's own JSON API instead of reading the page, because class names change on every deploy.", "Azure OpenAI in JSON mode maps every result to one schema with 16 event codes; Pydantic validates it, with one retry that feeds the errors back.", "Bot protection blocks cloud IPs, so it runs as a Docker image with a virtual display on a separate laptop, reached over a private Tailscale network.", "Sites that cannot be scraped return a clean 501 instead of fake data; a 10-container test gave 5 OK, 3 clean 501s and 2 bugs."], "flow": ["Request", "Carrier detection", "Headful scrape", "LLM normalise", "Universal schema"], "steps": ["A FastAPI endpoint takes the tracking request.", "Work out which of the 8 ocean carriers or 16 airlines it belongs to.", "Playwright drives headful Chrome and captures the site's own JSON API.", "Azure OpenAI in JSON mode maps the result; Pydantic validates it, with one retry.", "One schema with 16 event codes; sites that cannot be scraped return a clean 501."], "shots": [{"src": "img/d-03.svg", "caption": "Overview: how the scraper works, step by step"}]}, {"role": "Builder and owner of the repos.", "period": "Aug–Oct 2026", "details": ["Staff used to type about 25 fields per claim by hand.", "The first version was slow: a vision model classified about 71 layout crops per page, at 2.65 s per crop.", "The rebuild split the work into modules: portal sync, GPU OCR, field extraction, intake gate and dashboard.", "Only text goes to the AI, never page images; hospital and doctor matching uses fuzzy matching with no AI.", "The target system checks nothing at submit, so a gate sends only complete cases; hold mode is the default.", "OCR runs on a rented cloud GPU at about $0.36 an hour, started and stopped by a small FastAPI service; local Ollama models act as second readers and extraction uses Gemini Flash-Lite with a strict JSON schema."], "flow": ["Portal sync", "GPU OCR", "Text-only extract", "Completeness gate", "Auto-send / human queue"], "steps": ["Sync new claims from the portal.", "Read the documents with OCR on a GPU.", "Extract the fields from text only; hospitals and doctors are matched without AI.", "Check each case is complete, because the target system checks nothing at submit.", "Complete cases are sent; the rest wait for a person. Hold mode is the default."], "shots": [{"src": "img/d-04.svg", "caption": "Overview: how the claims works, step by step"}]}, {"role": "Sole developer.", "period": "Sep–Oct 2026", "details": ["Uploaded files are converted to Markdown by one converter per type, including PDF, Office files and video.", "Only revisions a human approves are chunked, embedded and made searchable.", "Search combines vector and keyword results with rank fusion, then an LLM reranks them on a 0–10 scale.", "The server checks every citation, numbers the steps itself and refuses answers that contain links.", "A read-only MCP server offers search and fetch tools; 99 unit tests and 59 integration tests passed.", "Packaged as Docker Compose services with memory limits (Postgres with pgvector, API, worker, MCP server, Caddy) and a nightly encrypted database backup; chat uses Azure OpenAI GPT-5.4-mini, escalating to GPT-5.4."], "flow": ["Upload", "Convert to Markdown", "Human approval", "Chunk + embed", "Cited chat / MCP"], "steps": ["Upload files: PDF, Office files or video.", "One converter per file type turns each file into Markdown.", "A person approves each revision before it can be searched.", "Approved revisions are chunked and embedded.", "Answers cite checked sources; a read-only MCP server offers search and fetch."], "shots": [{"src": "img/d-05.svg", "caption": "Overview: how the knowledge chatbot works, step by step"}]}, {"role": "Sole builder, working with coding agents under a written spec.", "period": "Sep–Oct 2026", "details": ["The written spec was about 149 KB, with 27 architecture decision records.", "Clips are real trimmed MP4 files rendered by a worker, never picked by a model.", "Approval checks a content hash and fails if the content changed in the meantime.", "Retrieval fuses keyword and vector search and abstains below a similarity threshold.", "On a real eval, correct answers rose from 17 of 37 with keyword search to 33 of 37 with hybrid search, and all 11 out-of-scope questions were refused.", "The pilot runs as its own Compose project on the shared Azure VM behind Traefik with basic auth, and every model call reserves budget before it runs."], "flow": ["Upload sources", "Extract + draft", "Reviewer approval", "Publish index", "Hybrid retrieval", "Answer + clip"], "steps": ["Upload the source material.", "Extract the content and draft entries from it.", "A reviewer approves; approval fails if the content changed in the meantime.", "Publish the approved content to the search index.", "Fuse keyword and vector search; abstain below a similarity threshold.", "Answer with a real trimmed MP4 clip rendered by a worker."], "shots": [{"src": "img/d-06.svg", "caption": "Overview: how the learning assistant works, step by step"}]}, {"role": "Sole author.", "period": "Jul–Aug 2026", "details": ["It runs on a CPU-only Windows PC with small local Ollama models, and uses Huey with SQLite for jobs.", "Five retrievers sit behind one shared contract: Chroma, Qdrant, LanceDB, BM25 and a hybrid with rank fusion.", "Eval questions are generated by an LLM, checked for answer leakage, then reviewed by a human.", "Scoring uses hit rate, MRR and an LLM judge; the test suite grew to 515 tests.", "Two CPU runtimes were compared: llama.cpp built from source gave 4.01 against 3.42 tokens per second for Ollama, with identical retrieval scores, so switching was not worth it."], "flow": ["Upload / crawl", "Markdown vault", "Chunk + embed", "5 retrievers", "Chat + benchmark"], "steps": ["Add documents by upload or by crawling a site.", "Keep every document as Markdown.", "Chunk and embed with small local Ollama models on a CPU-only PC.", "Chroma, Qdrant, LanceDB, BM25 and a hybrid, behind one shared contract.", "Chat, or benchmark with hit rate, MRR and an LLM judge."], "shots": [{"src": "img/d-07.svg", "caption": "Overview: how the rag lab works, step by step"}]}, {"role": "Sole author.", "period": "Sep 2026", "details": ["Four tools replace 38.", "Output is TSV, which uses 42% fewer tokens than JSON.", "Known-bad queries are refused, and a sort order is added automatically to avoid a 30-second timeout.", "In 24 test runs, input tokens per question fell 52% and cost nearly halved, with 12 of 12 answers correct in both setups.", "Hosted mode runs on the Azure VM as a 256 MB Node 22 container behind Traefik, with a healthcheck, OAuth 2.1 and a per-IP rate limit, and stores nothing on the server."], "flow": ["AI client", "Lean connector", "Guardrails + TSV", "Upstream API"], "steps": ["An AI client asks a question.", "The connector offers four tools instead of 38.", "Bad queries are refused, a sort order is added, and output is TSV (42% fewer tokens).", "The upstream API answers; hosted mode uses OAuth 2.1 and stores nothing."], "shots": [{"src": "img/d-08.svg", "caption": "Overview: how the mcp connector works, step by step"}]}, {"role": "Designer and sole builder.", "period": "May–Jul 2026", "details": ["GPT-4.1 classifies each new ticket by product, type and confidence, then routes it as service, bug or feature.", "Bugs go to Azure DevOps and features to a product tool, only after a human approves in the team chat.", "Link previews opened the approve link and resumed the workflow on their own; the fix was a form a person must submit.", "An error workflow posts an alert card.", "The final workflow has 44 nodes with 0 validation errors, built by parallel agents plus an integration agent and a verifier.", "Built for self-hosted n8n in Docker on the Azure VM, with GPT-4.1 on Azure OpenAI."], "flow": ["New ticket", "LLM classify", "Route by type", "Human approval", "Create work item"], "steps": ["A new support ticket arrives.", "GPT-4.1 tags product, type and confidence.", "Route it as service, bug or feature.", "A person approves in the team chat by submitting a form.", "Bugs go to Azure DevOps, features to a product tool."], "shots": [{"src": "img/d-09.svg", "caption": "Overview: how the triage works, step by step"}]}, {"role": "Sole designer and developer.", "period": "Jun–Dec 2025", "details": ["Built on a low-code agent platform, it grew from 21 steps to 15 flows with about 366 steps.", "It takes bookings by web chat and email, with a 10-field booking form of which 8 are required.", "Emails are sorted into five intents, and duplicates are caught with a key-value store.", "A vision model checks image attachments, and the assistant creates a branded PDF confirmation.", "A watchdog sends a test email and escalates if no reply comes back.", "Runs in the platform's cloud on Azure OpenAI models (GPT-4o, GPT-4.1 and GPT-4.1-mini), with a 24-hour conversation timeout."], "flow": ["Email / web chat", "Dedup", "AI agent extract", "PDF confirmation", "Forward to ops"], "steps": ["Bookings arrive by email or web chat.", "A key-value store catches duplicate emails.", "The agent sorts emails into five intents and fills the 10-field booking form.", "Create a branded PDF confirmation.", "Forward the booking to operations."], "shots": [{"src": "img/d-10.svg", "caption": "Overview: how the booking works, step by step"}]}, {"role": "Author.", "period": "Dec 2025–Jan 2026", "details": ["A React page checks the file is a PDF under 10 MB and converts it to Base64 in the browser.", "An n8n workflow does the OCR and AI classification, so the frontend stays thin.", "A tolerant parser accepts six different response shapes.", "Results can be sorted, copied or exported to Excel with page numbers.", "The frontend is hosted on Vercel and the n8n backend runs on the Azure VM."], "flow": ["PDF upload", "n8n webhook", "OCR", "AI classify", "Results / Excel"], "steps": ["A React page checks the file is a PDF under 10 MB and encodes it as Base64.", "Send it to an n8n workflow by webhook.", "Read the text with OCR.", "AI classifies the goods.", "Sort, copy or export the results to Excel with page numbers."], "shots": [{"src": "img/d-11.svg", "caption": "Overview: how the hs codes works, step by step"}]}, {"role": "Builder of the prompts, schemas, agent design and normalisation code.", "period": "Mar–Jun 2026", "details": ["The PDF is parsed, split into pages and processed in a loop.", "An orchestrator agent calls two specialists: one for shared fields and one for table rows.", "A row-count check guards against invented rows, and prompts forbid guessing.", "Output is mapped to 40 import columns as CSV.", "Later versions added a branch for pages with no valid fields and replaced code tools with JSON-schema output parsers.", "Runs on self-hosted n8n, with GPT-4.1 on Azure OpenAI for the agents and LlamaParse for the PDFs."], "flow": ["Form upload", "PDF parse", "Page loop", "Orchestrator + specialists", "Normalise", "CSV download"], "steps": ["Upload the PDF through a form.", "Parse the PDF and split it into pages.", "Process the pages one by one in a loop.", "An orchestrator calls one specialist for shared fields and one for table rows.", "Check the row count and map the output to 40 import columns.", "Download the result as CSV."], "shots": [{"src": "img/d-12.svg", "caption": "Overview: how the dg agent works, step by step"}]}, {"role": "Author.", "period": "2025–Mar 2026", "details": ["A 14-step cleaning pipeline cut 8.2 million legs to about 3.4 million; about half were placeholder rows.", "The test set shares no routes with the training data.", "End-to-end training did not converge, so a 4-stage curriculum was used for a model with 8 heads and 2.26 million parameters.", "A target-leakage feature was caught and removed; training ran locally on a 6 GB laptop GPU with PyTorch, PyG, Polars and DuckDB.", "Error was 14.53 days against a 14.83-day baseline; the main lesson was that data quality matters more than architecture."], "flow": ["8.2M leg records", "14-step cleaning", "Temporal graph events", "TGN model", "Predictions", "Streamlit dashboard"], "steps": ["Start from 8.2 million shipment legs.", "A 14-step pipeline cuts them to about 3.4 million.", "Turn the clean legs into a stream of graph events.", "A temporal graph network with 2.26 million parameters, trained in 4 stages.", "Forecast transit time: 14.53 days error against a 14.83-day baseline.", "Explore the forecasts in a Streamlit dashboard."], "shots": [{"src": "img/thesis-overview.svg", "caption": "The whole thesis in one picture: clean the data, build a temporal graph, train the model, forecast transit time"}, {"src": "img/thesis-pred-vs-actual.webp", "caption": "Predicted against actual transit time on the unseen-route test set"}, {"src": "img/deck-per-mode-results.webp", "caption": "Error by transport mode against the route-median baseline"}]}, {"role": "Author (MSc thesis, part 1 of 3).", "period": "2025–Mar 2026", "details": ["The unknown-leg filter alone removed 4.0M legs (48.8%); a second filter dropped 600K predicted, not actual, timestamps.", "Switching leg pairing from row order to the event-group id fixed a 36% misalignment and doubled label coverage (18.1% to 39.6%).", "Year-entry errors (+1 to +8 years) were repaired for about 20K legs by snapping to the value closest to the route median.", "About 80% of container records were duplicated; these were resolved before building the graph.", "Vocabularies were capped at the top 500 ports, 100 airports and 200 carriers to keep the graph tractable."], "flow": ["Load 6 tables", "Drop unknown legs", "Drop fake timestamps", "Fix year errors", "Pair legs by group", "Build event stream"], "steps": ["Load the six source tables.", "Remove 4.0M legs with unknown values (48.8%).", "Drop 600K predicted, not actual, timestamps.", "Repair year-entry errors for about 20K legs using the route median.", "Pair legs by event-group id, which fixed a 36% misalignment.", "Build the event stream for the graph."], "shots": [{"src": "img/d-14.svg", "caption": "Overview: how the cleaning works, step by step"}, {"src": "img/deck-cleaning-funnel.webp", "caption": "The 14-step reduction funnel: 8.2M raw legs to 3.4M clean legs and 10.2M interactions"}, {"src": "img/deck-dataset-mode-split.webp", "caption": "Raw dataset: 8.2M legs from 2019 to 2024, two thirds air freight"}]}, {"role": "Author (MSc thesis, part 2 of 3).", "period": "2025–Mar 2026", "details": ["The graph holds about 1.35M entities: containers, shipments, carriers, ports and airports, each with its own memory vector.", "End-to-end training did not converge, so training was staged: self-supervised warm-up, transit time, multi-task, then dwell time.", "A staged learning rate cut error by 8.6% against a constant-rate variant.", "2,263,704 parameters, trained on a single 6 GB laptop GPU with mixed precision.", "The test set shares no routes with training, so results measure generalisation to unseen lanes, not memorisation."], "flow": ["Event stream", "Message + GRU memory", "Route embeddings", "3 task encoders", "8 prediction heads", "Curriculum training"], "steps": ["Feed the events in time order.", "Each of about 1.35M entities keeps a memory vector, updated by a GRU.", "Learn an embedding for each route.", "Three encoders, one per task.", "Eight heads make the predictions.", "Train in stages: warm-up, transit time, multi-task, then dwell time."], "shots": [{"src": "img/d-15.svg", "caption": "Overview: how the tgn works, step by step"}, {"src": "img/deck-graph-schema.webp", "caption": "The heterogeneous logistics graph: five entity types and their relations"}, {"src": "img/thesis-architecture.webp", "caption": "Full architecture: event memory, route embeddings, three encoders and eight heads"}, {"src": "img/deck-curriculum-training.webp", "caption": "Four-stage curriculum, from self-supervised warm-up to a dwell-time auxiliary task"}, {"src": "img/deck-per-mode-results.webp", "caption": "Error by transport mode: large gains on road and rail, parity on ocean and air"}]}, {"role": "Author (MSc thesis, part 3 of 3).", "period": "2025–Mar 2026", "details": ["Feature importance from gradient norms, computed in batches of 512.", "Top-5 attention weights read through model hooks, reported with the known caveat that attention is not a full explanation.", "A rule-based explainer turns each prediction into plain language, with 5 delay severity levels.", "Explanations were precomputed for more than 200K predictions.", "The dashboard lets a user change the scenario and see the forecast again."], "flow": ["Model predictions", "Gradient importance", "Attention via hooks", "Rank drivers", "Plain-language summary", "What-if dashboard"], "steps": ["Start from the model's predictions.", "Feature importance from gradient norms, in batches of 512.", "Read the top-5 attention weights through model hooks.", "Rank what drives each prediction.", "A rule-based explainer writes it in plain language, with 5 delay levels.", "Change the scenario and see the forecast again."], "shots": [{"src": "img/d-16.svg", "caption": "Overview: how the xai works, step by step"}]}, {"role": "Wrote the PLC code, the visualisation and the presentation.", "period": "Oct 2025", "details": ["Two simulated axes, each limited to 800 mm and 500 mm/s.", "The final code has four blocks: axis control, 2D move, square path and a main program.", "The main program is a state machine with idle, homing, square, rounded-square and manual modes.", "Rounded corners use a 50 mm radius with 12 segments per 90 degrees.", "Later versions added jerk limits and buffered moves.", "Built on Beckhoff's NC-I interpolation channel (TF5100), which groups the two axes into one 2D Cartesian system.", "The PLC sends path commands with PLCopen blocks from Tc2_MC2 (MC_Power, MC_MoveLinearAbsolute, MC_Reset) and checks Busy, Done and Error before the next move.", "On the operator screen, a marker bound to the live axis positions traces the path as the axes move."], "flow": ["HMI buttons", "State machine", "Path waypoints", "2D move", "Simulated axes"], "steps": ["Operator buttons: power, halt, homing, reset and motion type.", "Modes: idle, homing, square, rounded square and manual.", "Rounded corners use a 50 mm radius, 12 segments per 90°.", "Move both axes together in 2D.", "Two simulated axes, limited to 800 mm and 500 mm/s."], "shots": [{"src": "img/d-17.svg", "caption": "Overview: how the plc works, step by step"}, {"src": "img/plc-hmi.webp", "caption": "Operator screen: power, halt, homing, reset, motion type and X/Y target entry"}, {"src": "img/plc-scope-square.webp", "caption": "Scope trace of one axis during the square path, with smooth acceleration"}, {"src": "img/plc-scope-xy.webp", "caption": "XY scope trace of a synchronised diagonal move"}]}, {"role": "", "period": "", "details": ["A KRL program moves a KUKA KR 4 R600 with spline motions to draw a short pen stroke.", "Speeds stay low near the surface, at 2–5%.", "Two digital outputs switch the tool, with a wait after each.", "Visual Components layouts cover pen, gripper and pick-up tasks."], "flow": ["CAD parts", "Simulation layout", "Teach points", "KRL program", "Pen stroke"], "steps": ["Bring in the CAD parts.", "Lay out the cell in Visual Components.", "Teach the points the robot moves through.", "A KRL program with spline motions, slow (2–5%) near the surface.", "A KUKA KR 4 R600 draws a short stroke; two outputs switch the tool."], "shots": [{"src": "img/d-18.svg", "caption": "Overview: how the kuka works, step by step"}]}, {"role": "Co-author in a group of two.", "period": "Jul–Aug 2025", "details": ["The plant makes about 21,000 tyres a day.", "A brownfield redesign was chosen to reuse buildings and logistics and keep the workforce.", "Two layouts were compared: a lean flow layout and modular cells with automated guided vehicles.", "A weighted decision matrix scored the modular layout higher, 509 against 469.", "The assignment did not allow simulation tools; digital twin and PLM concepts were covered on paper."], "flow": ["Case choice", "Production strategy", "Two layouts", "Decision matrix", "Flows + digitalisation"], "steps": ["A tyre plant making about 21,000 tyres a day.", "A brownfield redesign that reuses buildings and keeps the workforce.", "A lean flow layout against modular cells with guided vehicles.", "A weighted matrix scored the modular layout 509 against 469.", "Material flows, plus digital-twin and PLM concepts on paper."], "shots": [{"src": "img/d-19.svg", "caption": "Overview: how the tyre works, step by step"}, {"src": "img/tyre-layout-a.webp", "caption": "Scenario A: block layout from raw material store through mixing, assembly and warehousing"}, {"src": "img/tyre-layout-b.webp", "caption": "Scenario B: flexible, modular layout with recycling and material flow arrows"}]}, {"role": "Sole developer.", "period": "Sep–Oct 2026", "details": ["A 238-line Go binary embeds a rules skill and installs its dependencies, skipping steps already done, with a dry-run mode.", "It never calls an AI model.", "Version 0.1.0 failed a package-manager check by exiting with an error when a prerequisite was missing; 0.1.1 exits cleanly.", "GitHub Actions runs the tests, then GoReleaser builds for 3 operating systems and 2 architectures, with Homebrew and winget packages.", "Testing on two real machines found 5 bugs; a later Node version replaced it."], "flow": ["Git tag", "Go test", "GoReleaser build", "Release packages"], "steps": ["A git tag starts the release.", "Run the Go tests.", "GoReleaser builds for 3 operating systems and 2 architectures.", "Publish release packages, including Homebrew and winget."], "shots": [{"src": "img/d-20.svg", "caption": "Overview: how the installer works, step by step"}]}, {"role": "Co-founder at HyperSpawn Robotics. I designed the kinematics, calculated the 3D-printed joints, and owned power management and motor calibration.", "period": "Jul–Oct 2021 · ethics study Dec 2024", "details": ["About 1.95 m tall, with 20 degrees of freedom: 14 in the limbs, 4 in the neck and 2 in the torso.", "16 high-torque servos rated 10–30 kg·cm, run from a Raspberry Pi over I2C and UART, with Wi-Fi and Bluetooth remote control.", "Motion from forward and inverse kinematics, with PID control and joint-angle and velocity profiles for smooth, human-like movement.", "Modelled in SOLIDWORKS, motion simulated in MSC Adams, structure checked in ANSYS Workbench.", "3D-printed ABS body on an aluminium frame; joint loads calculated for the printed parts.", "Sensors: IMU, force sensors and a depth camera for navigation.", "Power from a 12 V Li-ion battery with a battery-management system and voltage regulators.", "Tested in stages: joint alignment, servo response and sensor calibration, then walking, balance and handling objects.", "The hard parts were balance while walking, keeping 16 servos in sync, and power use.", "In my MSc (Dec 2024) I co-wrote an ethics study of the robot: privacy under GDPR, EU dual-use export rules and job displacement, with measures such as encryption, pseudonymisation and reskilling."], "flow": ["CAD model", "Kinematics", "Printed joints", "Servos + PID", "Testing"], "steps": ["Full robot modelled in SOLIDWORKS, motion simulated in MSC Adams.", "Forward and inverse kinematics for 20 degrees of freedom.", "Joint loads calculated for 3D-printed ABS parts on an aluminium frame.", "16 servos on a Raspberry Pi, PID control, 12 V battery with BMS.", "Joint alignment and calibration, then walking, balance and grasping."], "shots": [{"src": "img/humanoid-cover.webp", "caption": "Concept image from the project presentation (stock, not the robot itself)"}, {"src": "img/humanoid-cad.webp", "caption": "CAD model of the full robot, about 1.95 m head to foot"}, {"src": "img/humanoid-rig.webm", "poster": "img/humanoid-rig-poster.webp", "caption": "Video: the robot's Blender rig, with inverse-kinematics bones driving arms and legs"}, {"src": "img/humanoid-ik.webp", "caption": "Inverse-kinematics test in Blender: one leg raised, joint rotations on the right"}]}, {"role": "Did most of the tuning and measurement, in a team of two.", "period": "Jul 2025", "details": ["The rig is an igus DLE-RG0012 gantry robot driven by Beckhoff EtherCAT stepper terminals.", "Motor: an igus NEMA 17 two-phase hybrid stepper, 1.8° steps, 1.8 A, 0.5 Nm holding torque, with a known resonance zone at 300–600 RPM.", "Test 1 held speed and acceleration fixed and changed only the drive frequency: 1000, 4000, 8000 and 32000 Hz.", "Each run was recorded with TwinCAT Scope and plotted in MATLAB: position, velocity, acceleration and following error.", "1000 Hz was very jerky with large spikes; 4000 Hz was smoother but noisy; 8000 Hz was smooth and quiet; 32000 Hz was close to continuous.", "Test 2 tuned the axis one setting at a time: cycle time, acceleration, position-lag monitoring, Kv and Kp gains, encoder settings and velocity threshold, checking noise and vibration after each change.", "With tuned settings the motor also ran smoothly at 2000 Hz (target velocity 300, acceleration 8000).", "Tests ran without a load. Recommendation: microstepping of 1/16 or finer for quiet motion."], "flow": ["Datasheet", "Base settings", "Frequency sweep", "Gain tuning", "Smooth motion"], "steps": ["Read the motor datasheet and its resonance zone.", "Set the base axis parameters in TwinCAT.", "Same move at 1000, 4000, 8000 and 32000 Hz, logged with Scope.", "Tuned Kv, Kp, lag monitoring and cycle time one at a time.", "Smooth and quiet from 8000 Hz; tuned settings smooth at 2000 Hz."], "shots": [{"src": "img/stepper-cover.webp", "caption": "Layout of the igus gantry the two stepper axes drive"}, {"src": "img/stepper-rig.webp", "caption": "The igus gantry in the lab, with a live TwinCAT Scope trace of the axis"}, {"src": "img/stepper-freq.webp", "caption": "Same move at four drive frequencies: jerky at 1000 Hz, smooth from 8000 Hz"}]}, {"role": "Solo project.", "period": "2025", "details": ["Object detection uses YOLOv4 with a CSP-Darknet53 backbone, pre-trained on COCO (cars, trucks, bicycles, people).", "The 500 strongest SURF features in each frame are matched to the previous frame.", "A robust affine fit (inliers within 4 px) estimates the camera's own motion and ignores points on moving cars.", "The current frame is warped onto the previous one, so what still differs is real motion; a 5% intensity threshold marks it.", "Morphological opening removes noise and closing fills gaps in the motion mask.", "A YOLO detection is kept only if its box centre lies in the motion mask, so parked cars and buildings drop out.", "If fewer than four points match, the frame is treated as having no camera motion, so the loop keeps running."], "flow": ["Video frame", "Feature match", "Motion warp", "Motion mask", "YOLO filter"], "steps": ["Read each highway frame and convert it to grayscale.", "Match the 500 strongest SURF features to the previous frame.", "Fit an affine transform and warp out the camera's own motion.", "Frame difference, threshold and clean up with morphology.", "Keep only YOLOv4 boxes that sit on moving pixels."], "shots": [{"src": "img/highway-cover.webp", "caption": "Title slide of the project presentation"}, {"src": "img/highway-result.webm", "poster": "img/highway-result.webp", "caption": "Video: Python re-creation of the same method (YOLOv4, SIFT in place of SURF) on a free highway clip by Matija Lopuh, CC BY 3.0, Wikimedia Commons. Orange = moving, grey = detected but filtered out, inset = motion mask"}, {"src": "img/highway-result.webp", "caption": "Still from the re-creation: moving cars and a truck boxed while the camera itself moves"}]}]</script>
+
+<script src="lenis.min.js"></script>
+<script>
+document.documentElement.classList.add('js');
+const D=JSON.parse(document.getElementById('detail').textContent);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function wrap(t,max){const out=[''];for(const w of t.split(' ')){const l=out[out.length-1];if(l&&(l+' '+w).length>max)out.push(w);else out[out.length-1]=l?l+' '+w:w;}return out;}
+// Snake layout: rows of `cols` boxes, alternate rows run right-to-left so every arrow stays short.
+function flow(steps,vertical,tips){
+  const cols=vertical?1:Math.min(3,steps.length),bw=vertical?196:140,bh=46,gx=30,gy=26;
+  const rows=Math.ceil(steps.length/cols),W=cols*bw+(cols-1)*gx+4,H=rows*bh+(rows-1)*gy+4;
+  const P=steps.map((t,i)=>{const r=Math.floor(i/cols);let c=i%cols;if(r%2)c=cols-1-c;return{x:2+c*(bw+gx),y:2+r*(bh+gy)};});
+  let s=tips?`<svg viewBox="0 0 ${W} ${H}" role="list" aria-label="Pipeline">`:`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Pipeline: ${esc(steps.join(', then '))}">`;
+  P.forEach((p,i)=>{
+    const q=P[i+1];if(!q)return;
+    if(q.y===p.y){const dir=q.x>p.x?1:-1,x1=dir>0?p.x+bw:p.x,x2=dir>0?q.x:q.x+bw,y=p.y+bh/2;
+      s+=`<path class="fl-arr" d="M${x1} ${y}H${x2-dir*5}"/><path class="fl-dot" d="M${x2} ${y}l${-dir*6} -4v8z"/>`;}
+    else{const x=p.x+bw/2,y1=p.y+bh,y2=q.y;s+=`<path class="fl-arr" d="M${x} ${y1}V${y2-5}"/><path class="fl-dot" d="M${x} ${y2}l-4 -6h8z"/>`;}
+  });
+  P.forEach((p,i)=>{
+    const L=wrap(steps[i],vertical?20:12).slice(0,2),cy=p.y+bh/2+4-(L.length-1)*8;
+    s+=(tips?`<g class="fl-step" tabindex="0" role="listitem" aria-label="${i+1}. ${esc(steps[i])}: ${esc(tips[i])}" data-tip="${esc(tips[i])}">`:'')+`<rect class="fl-box${i===steps.length-1?' fl-out':''}" x="${p.x}" y="${p.y}" width="${bw}" height="${bh}" rx="6"/>`
+      +`<text class="fl-num" x="${p.x+8}" y="${p.y+bh/2+4}">${String(i+1).padStart(2,'0')}</text>`
+      +L.map((l,j)=>`<text class="fl-txt" x="${p.x+30}" y="${cy+j*16}">${esc(l)}</text>`).join('')+(tips?'</g>':'');
+  });
+  return s+'</svg>';
+}
+const dlg=document.getElementById('dlg'),$=id=>document.getElementById(id);
+const calm=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const lenis=!calm&&window.Lenis?new Lenis({lerp:.09}):null;
+if(lenis){requestAnimationFrame(function raf(t){lenis.raf(t);requestAnimationFrame(raf);});}
+const go=el=>lenis?lenis.scrollTo(el,{offset:-40}):el.scrollIntoView({behavior:calm?'auto':'smooth'});
+document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{const t=document.querySelector(a.getAttribute('href'));if(t){e.preventDefault();go(t);}}));
+const dprog=$('dlg-prog'),dlgBar=()=>{const m=dlg.scrollHeight-dlg.clientHeight;dprog.style.transform=`scaleX(${m>0?dlg.scrollTop/m:0})`;};
+function show(job){dlg.classList.toggle('job',job);$('dlg-more-cap').textContent=job?'What I did':'More detail';if(!dlg.open)dlg.showModal();dlg.scrollTop=0;dlgBar();lenis&&lenis.stop();}
+dlg.addEventListener('scroll',()=>{dlgBar();ftip.hidden=true;},{passive:true});
+const shotsHtml=d=>(d.shots||[]).map(x=>`<figure>${x.src.endsWith('.webm')?`<video src="${esc(x.src)}" poster="${esc(x.poster||'')}" controls muted loop playsinline preload="none" aria-label="${esc(x.caption)}"></video>`:`<img src="${esc(x.src)}" alt="${esc(x.caption)}" loading="lazy">`}<figcaption>${esc(x.caption)}</figcaption></figure>`).join('');
+// Cards are in display order (featured first); data-n is the project's number in the detail data.
+document.querySelectorAll('.proj').forEach(card=>{
+  const d=D[card.dataset.n-1];if(!d)return;
+  const shot=(d.shots||[])[0];
+  card.querySelector('.thumb').innerHTML=shot?`<img class="shot" src="${esc(shot.src)}" alt="" loading="lazy">`:flow(d.flow,false,d.steps);
+  card.insertAdjacentHTML('beforeend','<span class="proj-more">Open details &rarr;</span>');
+  card.querySelector('.open').addEventListener('click',()=>{
+    dlg.dataset.k=card.dataset.k;
+    $('dlg-tags').innerHTML=card.querySelector('.proj-top').innerHTML;
+    $('dlg-title').textContent=card.querySelector('h3').textContent;
+    $('dlg-flow').innerHTML=flow(d.flow,true,d.steps);
+    $('dlg-period').textContent=d.period||'';
+    $('dlg-role').textContent=d.role||'';$('dlg-role').hidden=!d.role;
+    $('dlg-fields').innerHTML=card.querySelector('.fields').outerHTML;
+    $('dlg-more').innerHTML=d.details.map(x=>`<li>${esc(x)}</li>`).join('');
+    $('dlg-shots').innerHTML=shotsHtml(d);
+    $('dlg-stack').innerHTML=card.querySelector('.stack').innerHTML;
+    show(false);
+  });
+});
+dlg.addEventListener('close',()=>{ftip.hidden=true;lenis&&lenis.start();});
+// Step tooltips on hover or focus. Kept inside the open dialog so it shares the top layer.
+const ftip=document.createElement('div');ftip.className='tip';ftip.setAttribute('aria-hidden','true');ftip.hidden=true;
+document.addEventListener('pointerover',tipOn);document.addEventListener('focusin',tipOn);
+document.addEventListener('pointerout',tipOff);document.addEventListener('focusout',tipOff);
+addEventListener('scroll',()=>{ftip.hidden=true;},{passive:true});
+function tipOn(e){
+  const g=e.target.closest&&e.target.closest('.fl-step');if(!g)return;
+  (g.closest('dialog')||document.body).appendChild(ftip);ftip.textContent=g.dataset.tip;ftip.hidden=false;
+  const r=g.getBoundingClientRect(),t=ftip.getBoundingClientRect(),side=r.right+10+t.width<innerWidth-8;
+  const x=side?r.right+10:Math.max(8,Math.min(r.left+r.width/2-t.width/2,innerWidth-t.width-8)),y=side?r.top+r.height/2-t.height/2:r.bottom+8;
+  ftip.style.left=x+'px';ftip.style.top=Math.max(8,Math.min(y,innerHeight-t.height-8))+'px';
+}
+function tipOff(e){if(e.target.closest&&e.target.closest('.fl-step'))ftip.hidden=true;}
+$('dlg-close').addEventListener('click',()=>dlg.close());
+dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close();});
+const chips=[...document.querySelectorAll('.chip')],cards=[...document.querySelectorAll('.proj')],rows=[...document.querySelectorAll('#rest .proj')],shown=document.getElementById('shown');
+// Filters apply to the "more projects" list; featured projects always stay visible.
+function filter(f){
+  chips.forEach(x=>x.setAttribute('aria-pressed',x.dataset.f===f));
+  const has=p=>f==='all'||p.dataset.c.split(' ').includes(f);
+  let n=0;
+  rows.forEach(p=>{const hide=!has(p);p.hidden=hide;if(!hide){n++;p.classList.add('in');}});
+  const k=cards.filter(p=>!rows.includes(p)&&has(p)).length;
+  $('empty').hidden=n>0;
+  shown.textContent=n+' shown'+(k?` · ${k} featured above`:'');
+}
+chips.forEach(c=>c.addEventListener('click',()=>filter(c.dataset.f)));
+document.querySelectorAll('.tile').forEach(t=>t.addEventListener('click',()=>{filter(t.dataset.f);go($('rest-head'));}));
+// Career: each role opens the dialog with what I did, its projects and its tools.
+document.querySelectorAll('.step').forEach(st=>{
+  const role=st.querySelector('.step-role'),title=role.textContent,b=document.createElement('button');
+  b.type='button';b.className='job';b.setAttribute('aria-haspopup','dialog');b.innerHTML=role.innerHTML+' <span class="ar" aria-hidden="true">&rarr;</span>';role.replaceChildren(b);
+  b.addEventListener('click',()=>{
+    const links=st.dataset.proj?cards.filter(c=>c.querySelector('.proj-top .mono').textContent.startsWith(st.dataset.proj)):[];
+    const tools=links.length?[...new Set(links.flatMap(c=>[...c.querySelectorAll('.stack span')].map(s=>s.textContent)))]:(st.dataset.tools||'').split(',').filter(Boolean);
+    dlg.dataset.k='research';
+    $('dlg-tags').innerHTML=`<span class="mono">${esc(st.querySelector('.step-when').textContent)}</span>`;
+    $('dlg-title').textContent=title;
+    $('dlg-role').textContent=st.querySelector('.step-org').textContent;$('dlg-role').hidden=false;
+    $('dlg-more').innerHTML=[...st.querySelectorAll('li')].map(li=>`<li>${li.innerHTML}</li>`).join('');
+    $('dlg-fields').innerHTML=links.length?`<span class="cap">Projects from this role</span><div class="dlg-links">${links.map(c=>`<button type="button" data-i="${cards.indexOf(c)}">${esc(c.querySelector('h3').textContent)}<span class="ar" aria-hidden="true">&rarr;</span></button>`).join('')}</div>`:'';
+    $('dlg-shots').innerHTML='';
+    $('dlg-stack').innerHTML=tools.map(t=>`<span>${esc(t)}</span>`).join('');
+    show(true);
+  });
+});
+$('dlg-fields').addEventListener('click',e=>{const b=e.target.closest('[data-i]');if(b)cards[b.dataset.i].querySelector('.open').click();});
+// Contact form: posts to Formspree once the form id is set in data-id.
+const form=$('contact'),note=$('form-note'),send=form.querySelector('button'),sent=$('sent'),msg=$('sent-msg');
+// Success message resolves from random letters, left to right, like a terminal decoding it.
+let dec;
+function decode(text){
+  $('sent-sr').textContent=text;clearInterval(dec);
+  const done=()=>msg.innerHTML=esc(text).replace(/\S*w\S*/gi,s=>`<span style="white-space:nowrap">${s.replace(/w/gi,m=>`<span class="w">${m}</span>`)}</span>`);  // the display font's W needs the .w fix; nowrap keeps the word whole
+  if(calm){done();return;}
+  const G='ABCDEFGHJKLMNPQRSTUVXYZ0123456789#*+';let f=0;
+  dec=setInterval(()=>{f++;msg.textContent=[...text].map((c,i)=>c===' '||i<f-8?c:G[Math.random()*G.length|0]).join('');if(f>text.length+8){clearInterval(dec);done();}},40);
+}
+$('again').addEventListener('click',()=>{clearInterval(dec);sent.hidden=true;form.classList.remove('done');form.querySelector('input').focus();});
+if(!form.dataset.id){send.disabled=true;note.textContent='The form is not connected yet. Please use LinkedIn for now.';}
+form.addEventListener('submit',async e=>{
+  e.preventDefault();if(!form.dataset.id)return;
+  send.disabled=true;note.textContent='Sending…';
+  try{const r=await fetch('https://formspree.io/f/'+encodeURIComponent(form.dataset.id),{method:'POST',body:new FormData(form),headers:{Accept:'application/json'}});if(!r.ok)throw r.status;form.reset();note.textContent='';sent.hidden=false;form.classList.add('done');decode('Thanks, your message is on its way.');}
+  catch(err){note.textContent='Sending failed. Please try again, or use LinkedIn.';}
+  send.disabled=false;
+});
+const root=document.documentElement;
+try{const s=localStorage.getItem('theme');if(s)root.dataset.theme=s;}catch(e){}
+document.getElementById('theme').addEventListener('click',()=>{
+  const dark=root.dataset.theme?root.dataset.theme==='dark':!matchMedia('(prefers-color-scheme: light)').matches;
+  root.dataset.theme=dark?'light':'dark';
+  try{localStorage.setItem('theme',root.dataset.theme);}catch(e){}
+});
+
+// Split display words into letters for the staggered entrances.
+let ni=0;
+document.querySelectorAll('.name .ln').forEach(el=>{el.innerHTML=[...el.textContent].map(c=>`<span class="ch${/w/i.test(c)?' w':''}" style="--i:${ni++}">${c}</span>`).join('');});
+document.querySelectorAll('[data-split]').forEach(el=>{el.innerHTML=[...el.textContent].map((c,i)=>`<span class="ch${/w/i.test(c)?' w':''}" style="--i:${i}">${c}</span>`).join('');});
+document.querySelectorAll('.sec-head h2,.box-head').forEach(el=>[...el.childNodes].forEach(n=>{
+  if(n.nodeType!==3||!/w/i.test(n.data))return;
+  const s=document.createElement('b');s.style.font='inherit';s.innerHTML=esc(n.data).replace(/w/gi,m=>`<span class="w">${m}</span>`);n.replaceWith(s);
+}));
+// Entrances: stagger siblings that enter together.
+// Section headings decode like a terminal: random letters of the same width, so nothing shifts, lock in left to right.
+const GLY='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#%&@*+=?<>/';
+function decode(el){
+  const s=getComputedStyle(el),font=`${s.fontWeight} 100px ${s.fontFamily}`;
+  if(!document.fonts.check(font))return;
+  const ms=document.createElement('canvas').getContext('2d');ms.font=font;
+  const wd=c=>Math.round(ms.measureText(c).width),pool={};for(const c of GLY)(pool[wd(c)]??=[]).push(c);
+  const tw=document.createTreeWalker(el,NodeFilter.SHOW_TEXT),nodes=[];while(tw.nextNode())nodes.push([tw.currentNode,tw.currentNode.data]);
+  const total=nodes.reduce((a,[,t])=>a+t.length,0),dur=450+total*45;let t0=0,last=-99;
+  el.setAttribute('aria-label',el.textContent);
+  const paint=k=>{let i=0;nodes.forEach(([n,txt])=>{n.data=[...txt].map(c=>{const lock=k>=.25+.75*i++/total;if(lock||c===' ')return c;const g=pool[wd(c)];return g?g[Math.random()*g.length|0]:c;}).join('');});};
+  paint(0);
+  requestAnimationFrame(function f(t){t0||=t;const k=(t-t0)/dur;if(k>=1){nodes.forEach(([n,txt])=>n.data=txt);el.removeAttribute('aria-label');return;}if(t-last>50){last=t;paint(k);}requestAnimationFrame(f);});
+}
+// Cards and pictures build from pixel blocks: a grid in the page colour covers them and clears in random order, top first.
+function build(el){
+  const r=el.getBoundingClientRect(),W=Math.ceil(r.width),H=Math.ceil(r.height);if(!W||!H)return;
+  const o=(getComputedStyle(document.body).position==='static'?document.documentElement:document.body).getBoundingClientRect();
+  const cv=document.createElement('canvas'),x=cv.getContext('2d'),d=Math.min(2,devicePixelRatio||1),C=W<480?12:16;
+  cv.className='pxv';cv.setAttribute('aria-hidden','true');cv.width=W*d;cv.height=H*d;
+  Object.assign(cv.style,{left:r.left-o.left+'px',top:r.top-o.top+'px',width:W+'px',height:H+'px'});
+  x.scale(d,d);x.fillStyle=getComputedStyle(root).getPropertyValue('--bg');x.fillRect(0,0,W,H);document.body.appendChild(cv);
+  const cells=[],cols=Math.ceil(W/C),rows=Math.ceil(H/C);
+  for(let i=0;i<cols;i++)for(let j=0;j<rows;j++)cells.push([i*C,j*C,j/rows*.6+Math.random()*.4]);
+  cells.sort((a,b)=>a[2]-b[2]);
+  const wait=(parseFloat(el.style.getPropertyValue('--i'))||0)*80;let t0=0,n=0;
+  requestAnimationFrame(function f(t){t0||=t;const k=Math.min(1,Math.max(0,(t-t0-wait)/700)),m=Math.floor(cells.length*(1-(1-k)**2));
+    for(;n<m;n++)x.clearRect(cells[n][0],cells[n][1],C,C);if(k<1)requestAnimationFrame(f);else cv.remove();});
+}
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){const el=e.target;if(el.classList.contains('px'))build(el);if(el.classList.contains('dec'))decode(el);el.classList.add('in');io.unobserve(el);}}),{rootMargin:'0px 0px -12% 0px'});
+if(!calm){document.querySelectorAll('.feat,.row,.tile,.portrait,.skills>div').forEach(el=>el.classList.add('px'));document.querySelectorAll('.sec-head h2').forEach(el=>el.classList.add('dec'));}
+document.querySelectorAll('[data-r],.feat,.row,.tile,.step,.doc,.skills>div,.giant').forEach(el=>{
+  if(!el.hasAttribute('data-r')&&!el.classList.contains('giant')&&!el.classList.contains('feat'))el.setAttribute('data-r','');
+  if(el.classList.contains('feat'))el.setAttribute('data-r','');
+  if(!el.style.getPropertyValue('--i')){const sib=[...el.parentElement.children].indexOf(el);el.style.setProperty('--i',Math.min(sib,6));}
+  io.observe(el);
+});
+
+// Scroll-linked work, one rAF per frame.
+const bar=document.querySelector('.bar'),prog=document.querySelector('.progress'),pz=document.querySelector('.hero-art .pz'),photo=document.querySelector('.photo'),pipe=document.querySelector('.pipe'),steps=[...document.querySelectorAll('.step')];
+let lastY=0,mx=0,my=0,tick=false;
+function frame(){
+  tick=false;const y=scrollY,h=innerHeight,max=document.documentElement.scrollHeight-h;
+  prog.style.transform=`scaleX(${max>0?y/max:0})`;
+  if(rail.offsetWidth)railDraw(y,h,max);
+  bar.classList.toggle('solid',y>40);bar.classList.toggle('away',y>h*.6&&y>lastY+2);if(y<lastY-2)bar.classList.remove('away');lastY=y;
+  if(calm)return;
+  if(y<h)pz.style.transform=`translate3d(${mx*-18}px,${y*.28+my*-12}px,0)`;
+  const r=photo.getBoundingClientRect();if(r.bottom>0&&r.top<h)photo.style.transform=`scale(1.12) translateY(${((r.top+r.height/2)/h-.5)*-6}%)`;
+  const pr=pipe.getBoundingClientRect(),p=Math.min(1,Math.max(0,(h*.6-pr.top)/pr.height));pipe.style.setProperty('--p',p);
+  steps.forEach(s=>s.classList.toggle('lit',s.getBoundingClientRect().top<h*.6));
+}
+// Custom scrollbar: thumb sized to the viewport, one tick per nav section, drag the thumb or click the track.
+const rail=$('rail'),thumb=rail.firstElementChild,tip=thumb.firstElementChild;
+const secs=[...document.querySelectorAll('.bar .links a')].map(a=>{
+  const s=document.querySelector(a.getAttribute('href')),t=document.createElement('button');
+  t.type='button';t.className='tk';t.tabIndex=-1;t.title=a.textContent;
+  t.addEventListener('click',e=>{e.stopPropagation();go(s);});rail.appendChild(t);
+  return {s,t,label:a.textContent};
+});
+function railDraw(y,h,max){
+  const R=rail.clientHeight,T=Math.max(48,R*h/(max+h)),room=R-T;let cur='Top';
+  thumb.style.height=T+'px';thumb.style.transform=`translateY(${max>0?room*y/max:0}px)`;
+  secs.forEach(({s,t,label})=>{const top=s.getBoundingClientRect().top+y,on=top<=y+h*.4;t.style.top=(max>0?Math.min(1,top/max):0)*room+T/2+'px';t.classList.toggle('on',on);if(on)cur=label;});
+  tip.textContent=`${cur} · ${String(Math.round(max>0?y/max*100:0)).padStart(3,'0')}%`;
+}
+const jump=t=>lenis?lenis.scrollTo(t,{immediate:true}):scrollTo(0,t);
+thumb.addEventListener('pointerdown',e=>{
+  e.preventDefault();e.stopPropagation();thumb.setPointerCapture(e.pointerId);rail.classList.add('drag');
+  const y0=e.clientY,s0=scrollY,k=(root.scrollHeight-innerHeight)/(rail.clientHeight-thumb.offsetHeight);
+  const mv=ev=>jump(s0+(ev.clientY-y0)*k);
+  const up=()=>{rail.classList.remove('drag');thumb.removeEventListener('pointermove',mv);thumb.removeEventListener('pointerup',up);thumb.removeEventListener('pointercancel',up);};
+  thumb.addEventListener('pointermove',mv);thumb.addEventListener('pointerup',up);thumb.addEventListener('pointercancel',up);
+});
+rail.addEventListener('pointerdown',e=>{
+  if(e.target!==rail)return;
+  const r=rail.getBoundingClientRect(),T=thumb.offsetHeight,t=Math.min(1,Math.max(0,(e.clientY-r.top-T/2)/(r.height-T)))*(root.scrollHeight-innerHeight);
+  lenis?lenis.scrollTo(t):scrollTo({top:t,behavior:calm?'auto':'smooth'});
+});
+let railIdle;
+addEventListener('scroll',()=>{rail.classList.add('moving');clearTimeout(railIdle);railIdle=setTimeout(()=>rail.classList.remove('moving'),900);},{passive:true});
+const ask=()=>{if(!tick){tick=true;requestAnimationFrame(frame);}};
+addEventListener('scroll',ask,{passive:true});addEventListener('resize',ask);frame();
+// Hero: a pixel grid with data packets running along right-angled traces, brighter near the pointer.
+(()=>{
+  const cv=document.querySelector('.hero-art canvas'),hero=cv.closest('.hero'),ctx=cv.getContext('2d'),C=12;
+  const css=getComputedStyle(hero),FG=css.getPropertyValue('--fg').trim(),AC=css.getPropertyValue('--accent').trim();
+  let W=0,H=0,cols,rows,base,paths,packets,px=-999,py=-999,on=true,dirty=true,last=0,raf=0;
+  function trace(){
+    let x=Math.random()*cols|0,y=Math.random()*rows|0,d=Math.random()*4|0;const cells=[],nodes=[];
+    for(let seg=0;seg<8;seg++){
+      const n=4+(Math.random()*16|0),[dx,dy]=[[1,0],[0,1],[-1,0],[0,-1]][d];
+      for(let k=0;k<n;k++){x+=dx;y+=dy;if(x<0||y<0||x>=cols||y>=rows)return {cells,nodes};cells.push([x,y]);}
+      if(Math.random()<.5)nodes.push(cells.length-1);
+      d=(d+(Math.random()<.5?1:3))%4;
+    }
+    return {cells,nodes};
+  }
+  function build(){
+    const dpr=Math.min(2,devicePixelRatio||1);W=cv.clientWidth;H=cv.clientHeight;if(!W||!H)return;
+    cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);cols=Math.ceil(W/C);rows=Math.ceil(H/C);
+    paths=[];for(let i=0;paths.length<Math.max(6,Math.round(cols/10))&&i<400;i++){const t=trace();if(t.cells.length>=12)paths.push(t);}
+    packets=[];paths.forEach(p=>{for(let k=0;k<2+(Math.random()*2|0);k++)packets.push({p,i:Math.random()*p.cells.length|0,wait:0,red:Math.random()<.18});});
+    base=document.createElement('canvas');base.width=cv.width;base.height=cv.height;const b=base.getContext('2d');b.setTransform(dpr,0,0,dpr,0,0);
+    b.fillStyle=FG;b.globalAlpha=.07;for(let x=0;x<cols;x++)for(let y=0;y<rows;y++)b.fillRect(x*C+5,y*C+5,2,2);
+    b.globalAlpha=.12;paths.forEach(p=>p.cells.forEach(([x,y])=>b.fillRect(x*C+2,y*C+2,C-4,C-4)));
+    b.globalAlpha=.35;b.strokeStyle=FG;paths.forEach(p=>p.nodes.forEach(n=>{const [x,y]=p.cells[n];b.strokeRect(x*C-3.5,y*C-3.5,C+7,C+7);}));
+    dirty=true;draw();
+  }
+  function step(){
+    const R=cv.getBoundingClientRect();
+    packets.forEach(k=>{
+      if(k.wait){k.wait--;return;}
+      const [x,y]=k.p.cells[k.i],near=Math.hypot(x*C+6-(px-R.left),y*C+6-(py-R.top))<120;
+      k.i+=near?2:1;if(k.i>=k.p.cells.length)k.i=0;
+      if(k.p.nodes.includes(k.i))k.wait=8;
+    });
+    dirty=true;
+  }
+  function draw(){
+    if(!dirty||!base)return;dirty=false;
+    ctx.globalAlpha=1;ctx.clearRect(0,0,W,H);ctx.drawImage(base,0,0,W,H);
+    const R=cv.getBoundingClientRect(),lx=px-R.left,ly=py-R.top;
+    if(lx>-90&&ly>-90&&lx<W+90&&ly<H+90){
+      ctx.fillStyle=FG;const gx=lx/C|0,gy=ly/C|0;
+      for(let x=gx-7;x<=gx+7;x++)for(let y=gy-7;y<=gy+7;y++){const d=Math.hypot(x*C+6-lx,y*C+6-ly);if(d<84){ctx.globalAlpha=.34*(1-d/84);ctx.fillRect(x*C+4,y*C+4,4,4);}}
+    }
+    packets.forEach(k=>{ctx.fillStyle=k.red?AC:FG;for(let t=0;t<5&&k.i-t>=0;t++){const [x,y]=k.p.cells[k.i-t];ctx.globalAlpha=t?.45*(1-t/5):.95;ctx.fillRect(x*C+2,y*C+2,C-4,C-4);}});
+  }
+  function loop(t){raf=0;if(!on||calm)return;if(t-last>70){last=t;step();}draw();raf=requestAnimationFrame(loop);}
+  const go=()=>{if(!raf&&on&&!calm)raf=requestAnimationFrame(loop);};
+  new ResizeObserver(()=>{if(cv.clientWidth!==W||cv.clientHeight!==H)build();}).observe(cv);
+  new IntersectionObserver(([e])=>{on=e.isIntersecting;go();}).observe(hero);
+  if(!calm)addEventListener('pointermove',e=>{px=e.clientX;py=e.clientY;if(scrollY<innerHeight)dirty=true;},{passive:true});
+  build();go();
+})();
+// Ripples: pixel squares that spread where a mouse or finger passes over empty page.
+const rip=document.createElement('canvas'),rc=rip.getContext('2d');let rings=[],drawn=false,lr={x:-999,y:-999,t:0},rgo=false;
+function ripples(t){
+  rc.clearRect(0,0,innerWidth,innerHeight);rings=rings.filter(r=>t-r.t<900);drawn=rings.length>0;
+  rings.forEach(r=>{const k=Math.max(0,(t-r.t)/900),s=2*Math.round((6+(1-(1-k)**3)*50)/2);rc.globalAlpha=.3*(1-k);rc.strokeStyle=rc.fillStyle=r.c;rc.lineWidth=2;
+    rc.strokeRect(r.x-s/2,r.y-s/2,s,s);if(k<.35)rc.fillRect(r.x-2,r.y-2,4,4);});
+  if(rings.length||drawn)requestAnimationFrame(ripples);else rgo=false;
+}
+function drop(x,y){
+  const t=performance.now();
+  if(Math.hypot(x-lr.x,y-lr.y)>44&&t-lr.t>70){lr={x,y,t};if(rings.length<14)rings.push({x:Math.round(x),y:Math.round(y),t,c:getComputedStyle(root).getPropertyValue('--fg')});}
+  if(rings.length&&!rgo){rgo=true;requestAnimationFrame(ripples);}
+}
+if(!calm){
+  rip.className='ripples';rip.setAttribute('aria-hidden','true');document.body.append(rip);
+  const sizeRip=()=>{const d=Math.min(2,devicePixelRatio||1);rip.width=innerWidth*d;rip.height=innerHeight*d;rc.setTransform(d,0,0,d,0,0);};
+  sizeRip();addEventListener('resize',sizeRip);
+  const touch=e=>{const p=e.touches[0];if(!p)return;const el=document.elementFromPoint(p.clientX,p.clientY);if(el&&!el.closest('dialog,form'))drop(p.clientX,p.clientY);};
+  addEventListener('touchstart',touch,{passive:true});addEventListener('touchmove',touch,{passive:true});
+}
+if(!calm&&matchMedia('(pointer:fine)').matches){
+  addEventListener('pointermove',e=>{mx=e.clientX/innerWidth-.5;my=e.clientY/innerHeight-.5;if(scrollY<innerHeight)ask();},{passive:true});
+  // Cursor: a pixel square that follows with a short lag and takes the shape of what it is over.
+  const cur=document.createElement('div');
+  cur.className='cur';cur.setAttribute('aria-hidden','true');
+  document.body.append(cur);root.classList.add('has-cur');
+  const HIT='a,button,summary,select,[role=button],.chip',TXT='p,h1,h2,h3,h4,h5,li,dd,dt,blockquote,figcaption,label,.mono';
+  let cx=-99,cy=-99,box={x:-99,y:-99,w:8,h:8},want={...box},look=false,going=false;
+  function aim(el){
+    let m='',lab='',cc='',w=8,h=8,x=cx-4,y=cy-4;
+    const tile=el.closest('.tile'),card=el.closest('.proj');
+    if(tile){m='tile';const r=tile.getBoundingClientRect();x=r.left+6;y=r.top+6;w=r.width-12;h=r.height-12;}
+    else if(card&&card.classList.contains('feat')){
+      const t=card.querySelector('.thumb').getBoundingClientRect(),inPic=cx>=t.left&&cx<=t.right&&cy>=t.top&&cy<=t.bottom;
+      m='label';lab=inPic?'VIEW':'OPEN';cc=getComputedStyle(card).getPropertyValue('--c');w=h=56;x=cx-28;y=cy-28;
+    }
+    else if(card){m='bar';const r=card.getBoundingClientRect();cc=getComputedStyle(card).getPropertyValue('--c');w=3;h=r.height;x=cx-1;y=r.top;}
+    else if(el.closest('input,textarea')||(!el.closest(HIT)&&!el.closest('.hero')&&el.closest(TXT))){
+      m='caret';h=Math.round((parseFloat(getComputedStyle(el).fontSize)||16)*1.15);w=2;x=cx-1;y=cy-h/2;
+    }
+    else if(el.closest(HIT)){w=h=4;x=cx-2;y=cy-2;}
+    else if(!el.closest('dialog,.hero,img,svg,canvas,form'))drop(cx,cy);
+    cur.className='cur'+(m?' '+m:'');cur.textContent=lab;if(cc)cur.style.setProperty('--cc',cc);
+    want={x,y,w,h};
+    const host=el.closest('dialog')||document.body;if(cur.parentNode!==host)host.appendChild(cur);
+  }
+  function move(){
+    if(look){look=false;const el=document.elementFromPoint(cx,cy);if(el)aim(el);}
+    for(const k of ['x','y','w','h'])box[k]+=(want[k]-box[k])*.3;
+    cur.style.transform=`translate3d(${box.x}px,${box.y}px,0)`;cur.style.width=box.w+'px';cur.style.height=box.h+'px';
+    if(look||['x','y','w','h'].some(k=>Math.abs(want[k]-box[k])>.3))requestAnimationFrame(move);else going=false;
+  }
+  const wake=()=>{look=true;if(!going){going=true;requestAnimationFrame(move);}};
+  addEventListener('pointermove',e=>{if(e.pointerType!=='mouse')return;if(cx<0)box={x:e.clientX-4,y:e.clientY-4,w:8,h:8};cx=e.clientX;cy=e.clientY;cur.style.opacity=1;wake();},{passive:true});
+  addEventListener('scroll',()=>{if(cx>=0)wake();},{passive:true});
+  document.addEventListener('mouseout',e=>{if(!e.relatedTarget)cur.style.opacity=0;});
+  // Magnetic buttons.
+  document.querySelectorAll('[data-mag]').forEach(b=>{
+    b.addEventListener('pointermove',e=>{const r=b.getBoundingClientRect();b.style.transform=`translate(${(e.clientX-r.left-r.width/2)*.25}px,${(e.clientY-r.top-r.height/2)*.35}px)`;});
+    b.addEventListener('pointerleave',()=>{b.style.transform='';});
+  });
+  // Floating preview for the compact rows, eased toward the pointer.
+  const peek=document.querySelector('.peek');let px=0,py=0,tx=0,ty=0,run=false;
+  const follow=()=>{px+=(tx-px)*.16;py+=(ty-py)*.16;peek.style.transform=`translate3d(${px+24}px,${py-90}px,0)`;if(peek.classList.contains('on')||Math.abs(tx-px)>.5)requestAnimationFrame(follow);else run=false;};
+  document.querySelectorAll('.row').forEach(row=>{
+    row.addEventListener('pointerenter',e=>{const img=row.querySelector('.thumb img');if(!img)return;peek.innerHTML=`<img src="${img.getAttribute('src')}" alt="">`;if(!peek.classList.contains('on')){px=tx=e.clientX;py=ty=e.clientY;}peek.classList.add('on');if(!run){run=true;requestAnimationFrame(follow);}});
+    row.addEventListener('pointermove',e=>{tx=e.clientX;ty=e.clientY;});
+    row.addEventListener('pointerleave',()=>peek.classList.remove('on'));
+  });
+  // Tilt on featured pictures.
+  document.querySelectorAll('.feat .thumb').forEach(t=>{
+    t.style.transition='transform .8s var(--ease),clip-path 1.4s var(--ease)';
+    t.parentElement.addEventListener('pointermove',e=>{const r=t.getBoundingClientRect();const x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;t.style.transform=`perspective(1200px) rotateY(${x*4}deg) rotateX(${y*-4}deg)`;});
+    t.parentElement.addEventListener('pointerleave',()=>{t.style.transform='';});
+  });
+}
+</script>
+
+</body>
+</html>
